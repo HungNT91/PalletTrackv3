@@ -369,12 +369,20 @@
     "station": "WH-01 • Kho A (Khu nhận diện pallet & tiền soạn)",
     "deviceId": "Thiết bị cầm tay PDA WMS",
     "shiftName": "Ca làm việc tiêu chuẩn",
-    "loginTime": "20:23",
+    "loginTime": "20:52",
     "status": "online",
     "ipAddress": "192.168.1.104",
     "pingMs": 12
   },
   "auditLogs": [
+    {
+      "id": "LOG-1793800340438-6",
+      "timestamp": "Vừa xong",
+      "action": "CẬP NHẬT PHIÊN LÀM VIỆC",
+      "details": "Nhân viên Trần Minh (OP-2048) đăng nhập tại trạm WH-01 • Kho A (Khu nhận diện pallet & tiền soạn)",
+      "operator": "Trần Minh",
+      "type": "info"
+    },
     {
       "id": "LOG-1793798637349-260",
       "timestamp": "Vừa xong",

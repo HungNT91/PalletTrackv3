@@ -7,9 +7,9 @@ const DATA_FILE = path.join(DATA_DIR, 'wms_store.json');
 
 const INITIAL_LOCATIONS: WarehouseLocation[] = [
   {
-    id: 'TS-01',
-    code: 'TS-01',
-    name: 'Tiền soạn 1',
+    id: 'TS-01 - K1',
+    code: 'TS-01 - K1',
+    name: 'Tiền soạn 1 - Kho 1',
     zone: 'Khu A • Kệ 01',
     type: 'staging',
     capacity: 20,

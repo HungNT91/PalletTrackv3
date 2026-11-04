@@ -1,5 +1,7 @@
 import express from 'express';
+import http from 'http';
 import path from 'path';
+import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { wmsStore } from './server/store.js';
 
@@ -114,14 +116,45 @@ app.post('/api/reset-data', (_req, res) => {
   res.json({ message: 'Dữ liệu đã được đặt lại về mặc định', data: resetData });
 });
 
+function listenWithRetry(server: http.Server, port: number, maxRetries = 10): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const onError = (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        server.removeListener('listening', onListening);
+        if (maxRetries > 0) {
+          console.warn(`[WMS] Cổng ${port} đang bận, tự động chuyển sang cổng ${port + 1}...`);
+          resolve(listenWithRetry(server, port + 1, maxRetries - 1));
+        } else {
+          reject(new Error(`Không thể tìm thấy cổng trống sau nhiều lần thử.`));
+        }
+      } else {
+        reject(err);
+      }
+    };
+
+    const onListening = () => {
+      server.removeListener('error', onError);
+      resolve(port);
+    };
+
+    server.once('error', onError);
+    server.once('listening', onListening);
+    server.listen(port, '0.0.0.0');
+  });
+}
+
 // Production static files vs Vite middleware in dev
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
+  const server = http.createServer(app);
 
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        ws: { server },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -133,9 +166,16 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`PalletTrack WMS server running on http://0.0.0.0:${PORT}`);
-  });
+  const actualPort = await listenWithRetry(server, PORT);
+  console.log(`\n  🚀 PalletTrack WMS server is ready:`);
+  console.log(`  ➜  Local:   http://localhost:${actualPort}/`);
+  console.log(`  ➜  Network: http://127.0.0.1:${actualPort}/`);
+  console.log(`  ➜  API:     http://localhost:${actualPort}/api/stats\n`);
+
+  if (args.includes('--open')) {
+    const openCmd = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open';
+    exec(`${openCmd} http://localhost:${actualPort}/`);
+  }
 }
 
 startServer().catch(err => {

@@ -21,9 +21,12 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
   // Filter chips options
   const filterChips = [
     { id: 'all', label: 'Tất cả', icon: 'apps' },
-    { id: 'Tiền soạn 1', label: 'Tiền soạn 1', color: 'bg-amber-500' },
-    { id: 'Tiền soạn 2', label: 'Tiền soạn 2', color: 'bg-emerald-500' },
-    { id: 'Rack', label: 'Rack A/B', color: 'bg-blue-500' },
+    { id: 'Tiền soạn 1 - Kho 1', label: 'Tiền soạn 1 - Kho 1', color: 'bg-amber-500' },
+    { id: 'Tiền soạn 2 - Kho 1', label: 'Tiền soạn 2 - Kho 1', color: 'bg-emerald-500' },
+    { id: 'Tiền soạn 1 - Kho 2', label: 'Tiền soạn 1 - Kho 2', color: 'bg-emerald-500' },
+    { id: 'Tiền soạn 2 - Kho 2', label: 'Tiền soạn 2 - Kho 2', color: 'bg-emerald-500' },
+    { id: 'Rack Thường', label: 'Rack Thường', color: 'bg-blue-500' },
+    { id: 'Rack Cắt Liều', label: 'Rack Cắt Liều', color: 'bg-blue-500' },
   ];
 
   const pendingList = useMemo(() => cards.filter(c => c.status === 'pending'), [cards]);
@@ -136,19 +139,17 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('pending')}
-            className={`h-9 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-              activeTab === 'pending'
+            className={`h-9 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'pending'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             <span>Chờ chuyển</span>
             <span
-              className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                activeTab === 'pending'
+              className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${activeTab === 'pending'
                   ? 'bg-[#004ac6] text-white shadow-xs'
                   : 'bg-slate-200 text-slate-700'
-              }`}
+                }`}
             >
               {pendingList.length}
             </span>
@@ -156,19 +157,17 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('completed')}
-            className={`h-9 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${
-              activeTab === 'completed'
+            className={`h-9 rounded-lg flex items-center justify-center gap-2 text-xs font-bold transition-all ${activeTab === 'completed'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             <span>Đã hoàn tất</span>
             <span
-              className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                activeTab === 'completed'
+              className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${activeTab === 'completed'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'bg-slate-200 text-slate-700'
-              }`}
+                }`}
             >
               {completedList.length}
             </span>
@@ -208,11 +207,10 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                   key={chip.id}
                   type="button"
                   onClick={() => setSelectedFilter(chip.id)}
-                  className={`whitespace-nowrap h-7.5 px-2.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 flex-shrink-0 transition-all ${
-                    isSelected
+                  className={`whitespace-nowrap h-7.5 px-2.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 flex-shrink-0 transition-all ${isSelected
                       ? 'bg-[#004ac6] text-white shadow-sm'
                       : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-xs'
-                  }`}
+                    }`}
                 >
                   {chip.icon ? (
                     <span className="material-symbols-outlined text-[14px]">{chip.icon}</span>
@@ -255,9 +253,8 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
               >
                 {/* Left accent strip */}
                 <div
-                  className={`absolute left-0 top-0 bottom-0 w-1.5 ${
-                    isDone ? 'bg-emerald-500' : getBorderColor(card)
-                  }`}
+                  className={`absolute left-0 top-0 bottom-0 w-1.5 ${isDone ? 'bg-emerald-500' : getBorderColor(card)
+                    }`}
                 />
 
                 <div className="flex items-start justify-between gap-2 pl-2">
@@ -296,16 +293,14 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
 
                   <div className="flex flex-col items-end flex-shrink-0">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border ${
-                        isDone
+                      className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border ${isDone
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-amber-50 text-amber-800 border-amber-200'
-                      }`}
+                        }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          isDone ? 'bg-emerald-500' : 'bg-amber-500'
-                        }`}
+                        className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-emerald-500' : 'bg-amber-500'
+                          }`}
                       ></span>
                       {isDone ? 'Đã hoàn tất' : 'Chờ Nhập'}
                     </span>
@@ -349,11 +344,10 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                       e.stopPropagation();
                       onSelectCard(card);
                     }}
-                    className={`h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all flex-shrink-0 ${
-                      isDone
+                    className={`h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all flex-shrink-0 ${isDone
                         ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                         : 'bg-[#004ac6] hover:bg-blue-700 text-white'
-                    }`}
+                      }`}
                   >
                     <span className="material-symbols-outlined text-[15px] sm:text-[17px]">
                       {isDone ? 'visibility' : 'qr_code_2'}
