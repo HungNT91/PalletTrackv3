@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#f8f9ff;color:#0b1c30;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-fixed-variant": "#003ea8",
+          "surface-container-highest": "#d3e4fe",
+          "on-surface-variant": "#434655",
+          "tertiary-container": "#996100",
+          "surface-tint": "#0053db",
+          "primary-container": "#2563eb",
+          "surface-container-high": "#dce9ff",
+          "secondary-container": "#6cf8bb",
+          "outline-variant": "#e2e8f0",
+          "on-error-container": "#93000a",
+          "tertiary": "#784b00",
+          "on-primary": "#ffffff",
+          "on-secondary-container": "#00714d",
+          "on-tertiary-container": "#ffeedd",
+          "secondary-fixed-dim": "#4edea3",
+          "background": "#f8f9ff",
+          "primary-fixed": "#dbe1ff",
+          "on-tertiary": "#ffffff",
+          "inverse-on-surface": "#eaf1ff",
+          "surface-variant": "#d3e4fe",
+          "inverse-primary": "#b4c5ff",
+          "secondary": "#006c49",
+          "primary": "#004ac6",
+          "on-background": "#0b1c30",
+          "surface-container": "#e5eeff",
+          "on-primary-fixed": "#00174b",
+          "outline": "#94a3b8",
+          "inverse-surface": "#213145",
+          "surface-dim": "#cbdbf5",
+          "on-surface": "#0b1c30",
+          "on-secondary-fixed": "#002113",
+          "surface-container-low": "#eff4ff",
+          "on-primary-container": "#eeefff",
+          "error-container": "#ffdad6",
+          "on-tertiary-fixed": "#2a1700",
+          "surface-bright": "#f8f9ff",
+          "surface": "#f8f9ff",
+          "tertiary-fixed-dim": "#ffb95f",
+          "on-secondary": "#ffffff",
+          "on-error": "#ffffff",
+          "on-tertiary-fixed-variant": "#653e00",
+          "primary-fixed-dim": "#b4c5ff",
+          "error": "#ba1a1a",
+          "tertiary-fixed": "#ffddb8",
+          "on-secondary-fixed-variant": "#005236",
+          "secondary-fixed": "#6ffbbe",
+          "surface-container-lowest": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.375rem",
+          "lg": "0.75rem",
+          "xl": "1rem",
+          "2xl": "1.25rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-lg": "1.5rem",
+          "space-xs": "0.25rem",
+          "space-xl": "2rem",
+          "gutter": "1rem",
+          "margin": "1rem",
+          "space-sm": "0.5rem",
+          "space-md": "1rem"
+        },
+        "fontFamily": {
+          "display-sm": ["Inter"],
+          "body-sm": ["Inter"],
+          "headline-sm": ["Inter"],
+          "label-md": ["Inter"],
+          "body-md": ["Inter"],
+          "label-lg": ["Inter"],
+          "headline-lg": ["Inter"],
+          "label-sm": ["Inter"],
+          "body-lg": ["Inter"],
+          "code-num": ["Inter"],
+          "display-lg": ["Inter"],
+          "headline-md": ["Inter"]
+        },
+        "fontSize": {
+          "display-sm": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+          "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+          "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+          "headline-lg": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+          "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+          "code-num": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+          "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-md": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "600" }]
+        }
+      }
+    }
+  }
+</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-[#f8fafc] font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="PalletTrack WMS Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1V_0I_ZCGM68TB-BtLOrIqOI9W7AmS6mGjaT-bjyvwaDwjEMuPW_SWWAsl3WXj_4WUT7x5lea1TytSoX9wOS6jh8nWOw2CsTctCnqseztsXgQS2g3lYVtIRc8Z4HTiYSy-EnZ_9oyDa0oDsMm3fRxFfNiA9TxRFAkQc8f2bZXD6oPXaXookS9ZLziw0wuxev5BwY781QxvqTKXhQ90ogis1bbFyFRrVn_aTG1VQ5c4c-Q"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-code-num text-code-num text-primary font-bold tracking-tight truncate">PalletTrack WMS</span><span class="px-1.5 py-0.5 rounded bg-slate-100 text-on-surface-variant font-label-sm text-label-sm uppercase font-semibold border border-slate-200">WH-01</span></div><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span class="font-label-sm text-label-sm text-emerald-700 truncate uppercase font-semibold">Pha kho 01 - Online</span></div></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Bật tắt đèn pin" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100/80 hover:bg-slate-200/70 active:bg-blue-50 text-slate-700 active:text-primary transition-all border border-slate-200/60 shadow-sm" type="button"><span class="material-symbols-outlined text-[20px]">flashlight_on</span></button><button aria-label="Thông báo" class="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100/80 hover:bg-slate-200/70 active:bg-blue-50 text-slate-700 active:text-primary transition-all border border-slate-200/60 shadow-sm" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary-container ring-2 ring-white"></span></button><div class="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 text-primary flex items-center justify-center ml-0.5 shadow-sm"><span class="material-symbols-outlined text-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-[#f8fafc] min-h-screen"><div class="flex flex-col w-full pb-8">
+<!-- Interactive View State Controller Script -->
+<script>
+    function switchMode(mode) {
+      const scanView = document.getElementById('view-scan');
+      const manualView = document.getElementById('view-manual');
+      const tabScan = document.getElementById('tab-btn-scan');
+      const tabManual = document.getElementById('tab-btn-manual');
+      const prefixBar = document.getElementById('quick-prefix-bar');
+
+      if (mode === 'scan') {
+        scanView.classList.remove('hidden');
+        manualView.classList.add('hidden');
+        prefixBar.classList.add('hidden');
+        
+        tabScan.className = 'flex-1 py-2.5 px-3 rounded-lg bg-surface-container-lowest text-primary font-headline-sm text-headline-sm shadow-sm transition-all flex items-center justify-center gap-1.5';
+        tabManual.className = 'flex-1 py-2.5 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-lg text-label-lg transition-all flex items-center justify-center gap-1.5';
+      } else {
+        scanView.classList.add('hidden');
+        manualView.classList.remove('hidden');
+        prefixBar.classList.remove('hidden');
+
+        tabManual.className = 'flex-1 py-2.5 px-3 rounded-lg bg-surface-container-lowest text-primary font-headline-sm text-headline-sm shadow-sm transition-all flex items-center justify-center gap-1.5';
+        tabScan.className = 'flex-1 py-2.5 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-lg text-label-lg transition-all flex items-center justify-center gap-1.5';
+        
+        const palletInput = document.getElementById('pallet-code-input');
+        if (palletInput) palletInput.focus();
+      }
+    }
+
+    function appendPrefix(prefix) {
+      const input = document.getElementById('pallet-code-input');
+      if (input) {
+        input.value = prefix;
+        input.focus();
+        validatePalletInput(input.value);
+      }
+    }
+
+    function clearPalletInput() {
+      const input = document.getElementById('pallet-code-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+        validatePalletInput('');
+      }
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = document.getElementById('pallet-code-input');
+        if (input && text) {
+          input.value = text.trim();
+          validatePalletInput(input.value);
+        }
+      } catch (err) {
+        const input = document.getElementById('pallet-code-input');
+        if (input) {
+          input.value = 'PLT-2024-8842';
+          validatePalletInput(input.value);
+        }
+      }
+    }
+
+    function validatePalletInput(val) {
+      const btn = document.getElementById('btn-continue-action');
+      const badge = document.getElementById('detected-indicator');
+      const codeSpan = document.getElementById('target-pallet-code-badge');
+
+      if (val && val.trim().length >= 4) {
+        btn.classList.remove('opacity-60', 'pointer-events-none');
+        btn.classList.add('shadow-lg');
+        if (badge) badge.classList.remove('hidden');
+        if (codeSpan) codeSpan.innerText = val.trim();
+      } else {
+        btn.classList.add('opacity-60', 'pointer-events-none');
+        btn.classList.remove('shadow-lg');
+        if (badge) badge.classList.add('hidden');
+      }
+    }
+
+    let isTorchActive = false;
+    function toggleCameraFlash() {
+      isTorchActive = !isTorchActive;
+      const torchBtn = document.getElementById('cam-torch-btn');
+      const torchIcon = document.getElementById('cam-torch-icon');
+      if (isTorchActive) {
+        torchBtn.classList.add('bg-tertiary-fixed', 'text-tertiary');
+        torchIcon.style.fontVariationSettings = "'FILL' 1";
+      } else {
+        torchBtn.classList.remove('bg-tertiary-fixed', 'text-tertiary');
+        torchIcon.style.fontVariationSettings = "'FILL' 0";
+      }
+    }
+  </script>
+<!-- Top Hero Greeting & Warehouse Zone Meta -->
+<div class="px-margin pt-4 pb-2">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Khu Vực Nhập Kho A2</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Nhận diện kiện Pallet</h1>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+<span>Chờ điều chuyển</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+      Quét mã phản quang hoặc gõ mã Pallet để lập lệnh điều chuyển vị trí lưu kho.
+    </p>
+</div>
+<!-- Segmented Mode Switcher (Soft Tactile Console) -->
+<div class="px-margin my-3">
+<div class="p-1 rounded-xl bg-surface-container flex items-center shadow-inner">
+<button class="flex-1 py-2.5 px-3 rounded-lg bg-surface-container-lowest text-primary font-headline-sm text-headline-sm shadow-sm transition-all flex items-center justify-center gap-1.5" id="tab-btn-scan" onclick="switchMode('scan')" type="button">
+<span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+<span>Quét Camera</span>
+</button>
+<button class="flex-1 py-2.5 px-3 rounded-lg text-on-surface-variant hover:text-on-surface font-label-lg text-label-lg transition-all flex items-center justify-center gap-1.5" id="tab-btn-manual" onclick="switchMode('manual')" type="button">
+<span class="material-symbols-outlined text-[18px]">keyboard</span>
+<span>Nhập tay</span>
+</button>
+</div>
+</div>
+<!-- Quick Prefix Helper (Visible when Typing or easily tapped) -->
+<div class="hidden px-margin mb-3" id="quick-prefix-bar">
+<div class="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+<span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span> Tiền tố:
+      </span>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-code-num text-code-num whitespace-nowrap active:scale-95 transition-transform shadow-sm" onclick="appendPrefix('PLT-HN-')" type="button">
+        + PLT-HN-
+      </button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-code-num text-code-num whitespace-nowrap active:scale-95 transition-transform shadow-sm" onclick="appendPrefix('PLT-HCM-')" type="button">
+        + PLT-HCM-
+      </button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-code-num text-code-num whitespace-nowrap active:scale-95 transition-transform shadow-sm" onclick="appendPrefix('BIN-A01-')" type="button">
+        + BIN-A01-
+      </button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-code-num text-code-num whitespace-nowrap active:scale-95 transition-transform shadow-sm" onclick="appendPrefix('PALLET-STD-')" type="button">
+        + PALLET-STD-
+      </button>
+</div>
+</div>
+<!-- 1. CAMERA SCANNER SECTION -->
+<div class="px-margin flex flex-col gap-3" id="view-scan">
+<!-- Camera Viewfinder Card -->
+<div class="relative w-full rounded-2xl overflow-hidden bg-inverse-surface shadow-xl flex flex-col items-center justify-center min-h-[300px]">
+<!-- Background Camera Feed Preview (Placeholder image) -->
+<div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-luminosity scale-105" data-alt="Warehouse logistics floor with stacked cargo pallets, high bay racking shelves, soft ambient indoor industrial lighting with blue tone" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXeJqCNrHK8XnYSKEBeUaMTmgYJ0SGMDzF8weokJovGXak2pnu85-SLjTr-XvdGUqTbO-DyvyEty_nxeyiIu3J8Lq8O96lW3jpADCI2QlguvT63l67KAJDf1ZJuSyccLJQatF7KZwxZdDtDqDtvIzGDA0GUhVDvxuA5xBJoZNoSXxpMyAZ-p-NKDrs93hrhL0xE9lmE8RdyTWDhggXyIIcwO4e5A79FwzWwwdfw-GA')"></div>
+<!-- Live Gradient Scrim Overlay -->
+<div class="absolute inset-0 bg-gradient-to-b from-inverse-surface/80 via-transparent to-inverse-surface/90"></div>
+<!-- Top Scanner HUD Controls -->
+<div class="absolute top-3 inset-x-3 flex items-center justify-between z-20">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-inverse-surface/70 backdrop-blur-md text-inverse-on-surface shadow-md">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wide">AI Barcode Engine v3</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Torch Toggle -->
+<button class="w-9 h-9 rounded-full bg-inverse-surface/70 backdrop-blur-md text-inverse-on-surface flex items-center justify-center hover:bg-inverse-surface active:scale-90 transition-all shadow-md" id="cam-torch-btn" onclick="toggleCameraFlash()" title="Bật đèn Flash" type="button">
+<span class="material-symbols-outlined text-[18px]" id="cam-torch-icon">flash_on</span>
+</button>
+<!-- Switch Lens -->
+<button class="w-9 h-9 rounded-full bg-inverse-surface/70 backdrop-blur-md text-inverse-on-surface flex items-center justify-center hover:bg-inverse-surface active:scale-90 transition-all shadow-md" title="Đổi camera" type="button">
+<span class="material-symbols-outlined text-[18px]">flip_camera_ios</span>
+</button>
+</div>
+</div>
+<!-- Reticle Box with Animated Scanning Laser -->
+<div class="relative w-64 h-64 z-10 flex items-center justify-center">
+<!-- 4 Outer Corner Guides -->
+<div class="absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 border-primary shadow-sm"></div>
+<div class="absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 border-primary shadow-sm"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 border-primary shadow-sm"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 rounded-br-xl border-b-4 border-r-4 border-primary shadow-sm"></div>
+<!-- Center Crosshair Reticle -->
+<div class="w-8 h-8 flex items-center justify-center opacity-60">
+<span class="material-symbols-outlined text-inverse-on-surface text-[24px]">filter_center_focus</span>
+</div>
+<!-- Animated Laser Line Sweep -->
+<div class="absolute inset-x-3 top-2 h-1 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_12px_#2563eb] animate-[bounce_2s_infinite]"></div>
+<!-- QR Target Graphic Demo inside reticle -->
+<div class="absolute inset-10 rounded-xl bg-inverse-surface/30 backdrop-blur-xs flex items-center justify-center p-3 opacity-70">
+<div class="w-full h-full flex flex-col items-center justify-center text-inverse-on-surface gap-1">
+<span class="material-symbols-outlined text-[40px] text-primary-fixed">qr_code_2</span>
+<span class="font-label-sm text-label-sm text-inverse-on-surface opacity-90 text-center">Hướng vào tem dán Pallet</span>
+</div>
+</div>
+</div>
+<!-- Bottom Scanner Status Feedback -->
+<div class="absolute bottom-3 inset-x-4 flex flex-col items-center gap-1 z-20">
+<span class="font-label-md text-label-md text-inverse-on-surface bg-inverse-surface/80 backdrop-blur-md px-3 py-1 rounded-full shadow">
+          Sẵn sàng nhận diện: QR Code, Code-128, Datamatrix
+        </span>
+</div>
+</div>
+<!-- Quick action to test scanned item trigger -->
+<div class="p-3 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">sensors</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Đầu đọc Bluetooth / Súng quét</span>
+<span class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Súng Honeywell EDA51 kết nối
+          </span>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-primary font-label-md text-label-md hover:bg-surface-container-high transition-colors" onclick="appendPrefix('PLT-HN-2024-0981')" type="button">
+        Quét thử
+      </button>
+</div>
+</div>
+<!-- 2. MANUAL ENTRY SECTION (Initially visible or activated) -->
+<div class="hidden px-margin flex flex-col gap-3" id="view-manual">
+<!-- Manual Input Container -->
+<div class="p-4 rounded-2xl bg-surface-container-lowest shadow-md flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<label class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-1.5" for="pallet-code-input">
+<span class="material-symbols-outlined text-primary text-[20px]">pin</span>
+          Nhập mã vạch kiện (Pallet ID)
+        </label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Bắt buộc</span>
+</div>
+<!-- Recessed Ergonomic Input Box -->
+<div class="relative flex items-center rounded-xl bg-surface-container-low p-1 shadow-inner">
+<div class="pl-3 pr-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[22px]">inventory_2</span>
+</div>
+<input autocomplete="off" autocorrect="off" class="w-full bg-transparent py-3 text-on-surface font-code-num text-headline-md tracking-wider placeholder:text-outline focus:outline-none uppercase" id="pallet-code-input" oninput="validatePalletInput(this.value)" placeholder="Ví dụ: PLT-2024-8842" spellcheck="false" type="text"/>
+<div class="flex items-center gap-1 pr-1.5">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest transition-colors" onclick="clearPalletInput()" title="Xóa" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+<button class="px-2.5 py-1.5 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-primary font-label-md text-label-md flex items-center gap-1 transition-colors" onclick="pasteFromClipboard()" title="Dán mã vừa sao chép" type="button">
+<span class="material-symbols-outlined text-[16px]">content_paste</span>
+<span>Dán</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary">info</span>
+          Hỗ trợ mã tem nhãn mờ, rách hoặc tem phụ kho phụ
+        </span>
+<button class="text-primary hover:underline font-label-sm text-label-sm" onclick="appendPrefix('PLT-HN-8842')" type="button">Điền mẫu</button>
+</div>
+</div>
+</div>
+<!-- Detected Pallet Preview Banner (Dynamic State Feedback) -->
+<div class="px-margin mt-3">
+<div class="hidden p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between" id="detected-indicator">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">check_circle</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-bold tracking-wide">Đã nhận diện hợp lệ</span>
+<span class="font-code-num text-headline-sm text-on-surface" id="target-pallet-code-badge">PLT-2024-8842</span>
+</div>
+</div>
+<div class="text-right flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Quy cách</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">12 Thùng / 360kg</span>
+</div>
+</div>
+</div>
+<!-- 3. RECENT PALLETS HISTORY (Tactile SKU Stack) -->
+<div class="px-margin mt-4 flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">history</span>
+        Kiện vừa thao tác gần đây
+      </h2>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Xem tất cả (14)</a>
+</div>
+<!-- Recent Item 1 -->
+<div class="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all shadow-sm flex items-center justify-between" onclick="appendPrefix('PLT-HN-00941')">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">pallet</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-code-num text-code-num text-on-surface font-bold">PLT-HN-00941</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">Điện tử A</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Vị trí cũ: Dãy B-03-02 • 10 phút trước</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="font-label-sm text-label-sm font-semibold">Tái nạp</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</div>
+</div>
+<!-- Recent Item 2 -->
+<div class="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all shadow-sm flex items-center justify-between" onclick="appendPrefix('PLT-HN-00892')">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">inventory</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-code-num text-code-num text-on-surface font-bold">PLT-HN-00892</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">Tiêu dùng</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Vị trí cũ: Sàn đệm IN-01 • 28 phút trước</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="font-label-sm text-label-sm font-semibold">Tái nạp</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- 4. PRIMARY DISPATCH ACTION & BATCH IMPORT -->
+<div class="px-margin mt-6 flex flex-col gap-3">
+<!-- Big Primary Button: Advance to Destination Location Modal -->
+<button class="w-full py-4 px-4 rounded-xl bg-primary text-on-primary font-headline-md text-headline-md flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-all" id="btn-continue-action" onclick="alert('Đang mở bộ chọn vị trí đích lưu kho cho Pallet đã chọn...')" type="button">
+<span class="material-symbols-outlined text-[22px]">near_me</span>
+<span>Tiếp tục: Chọn vị trí đích điều chuyển</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Alternative Batch Action / Excel File Import -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-surface-container-lowest text-primary flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[20px]">table_view</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Cần điều chuyển hàng loạt nhiều Pallet?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Nạp danh sách từ file mẫu Excel (.xlsx / .csv)</span>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md hover:bg-surface-container-high transition-colors shadow-xs whitespace-nowrap" type="button">
+        Import file
+      </button>
+</div>
+<!-- Quick Warehouse Tips Banner -->
+<div class="flex items-center justify-center gap-2 py-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">verified_user</span>
+<span class="font-body-sm text-body-sm">Đồng bộ tức thời với máy chủ WMS ERP Cloud</span>
+</div>
+</div>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-white/95 backdrop-blur-xl border-t border-slate-200/80 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]" data-active-classes="text-primary font-bold"><div class="h-16 px-space-xs grid grid-cols-4 items-center justify-around"><a class="relative flex flex-col items-center justify-center h-14 rounded-xl text-slate-500 hover:text-slate-900 transition-colors" data-path="scan-entry" href="#"><span class="material-symbols-outlined text-[24px]">qr_code_scanner</span><span class="font-label-sm text-label-sm mt-0.5 tracking-tight truncate max-w-full px-1 text-center">Quét / Nhập</span></a><a class="relative flex flex-col items-center justify-center h-14 rounded-xl text-slate-500 hover:text-slate-900 transition-colors" data-path="task-queue" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">assignment</span><span class="absolute -top-1 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-container text-white font-label-sm text-label-sm flex items-center justify-center font-bold ring-2 ring-white shadow-sm">3</span></div><span class="font-label-sm text-label-sm mt-0.5 tracking-tight truncate max-w-full px-1 text-center">Thẻ chờ</span></a><a class="flex flex-col items-center justify-center h-14 rounded-xl text-slate-500 hover:text-slate-900 transition-colors" data-path="card-reconciliation" href="#"><span class="material-symbols-outlined text-[24px]">verified</span><span class="font-label-sm text-label-sm mt-0.5 tracking-tight truncate max-w-full px-1 text-center">Chi tiết thẻ</span></a><a class="flex flex-col items-center justify-center h-14 rounded-xl text-slate-500 hover:text-slate-900 transition-colors" data-path="import-data" href="#"><span class="material-symbols-outlined text-[24px]">upload_file</span><span class="font-label-sm text-label-sm mt-0.5 tracking-tight truncate max-w-full px-1 text-center">Import</span></a></div></nav>
+</body></html>

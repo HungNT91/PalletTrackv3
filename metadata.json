@@ -1,0 +1,6 @@
+{
+  "name": "PalletTrack WMS - Quản Lý & Điều Phối Pallet Kho Vận",
+  "description": "Hệ thống quản lý, đối soát mã QR và điều phối pallet thông minh với lưu trữ dữ liệu tập trung cho kho vận logistics.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary": "#ffffff", "on-tertiary": "#ffffff", "surface-container-low": "#eff4ff", "inverse-on-surface": "#eaf1ff", "background": "#f8f9ff", "surface-container-high": "#dce9ff", "inverse-primary": "#b4c5ff", "inverse-surface": "#213145", "error-container": "#ffdad6", "primary-fixed-dim": "#b4c5ff", "surface-variant": "#d3e4fe", "primary": "#004ac6", "on-primary-fixed-variant": "#003ea8", "on-secondary-container": "#00714d", "secondary-fixed": "#6ffbbe", "on-background": "#0b1c30", "tertiary-fixed": "#ffddb8", "secondary-container": "#6cf8bb", "on-secondary-fixed": "#002113", "secondary": "#006c49", "surface-container-lowest": "#ffffff", "surface-container-highest": "#d3e4fe", "tertiary": "#784b00", "surface-bright": "#f8f9ff", "on-error-container": "#93000a", "on-primary-fixed": "#00174b", "surface": "#f8f9ff", "on-tertiary-fixed": "#2a1700", "tertiary-container": "#996100", "on-primary-container": "#eeefff", "on-surface-variant": "#434655", "error": "#ba1a1a", "on-primary": "#ffffff", "on-secondary-fixed-variant": "#005236", "tertiary-fixed-dim": "#ffb95f", "surface-container": "#e5eeff", "surface-dim": "#cbdbf5", "secondary-fixed-dim": "#4edea3", "on-error": "#ffffff", "outline-variant": "#c3c6d7", "on-tertiary-container": "#ffeedd", "on-surface": "#0b1c30", "on-tertiary-fixed-variant": "#653e00", "primary-container": "#2563eb", "primary-fixed": "#dbe1ff", "outline": "#737686", "surface-tint": "#0053db" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xl": "2rem", "space-md": "1rem", "space-lg": "1.5rem", "gutter": "1rem", "margin": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, fontFamily: { "body-md": ["Inter"], "label-lg": ["Inter"], "display-lg": ["Inter"], "headline-sm": ["Inter"], "code-num": ["Inter"], "body-lg": ["Inter"], "label-md": ["Inter"], "headline-md": ["Inter"], "body-sm": ["Inter"], "label-sm": ["Inter"], "display-sm": ["Inter"], "headline-lg": ["Inter"] }, fontSize: { "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "display-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }], "headline-sm": ["16px", { lineHeight: "24px", fontWeight: "600" }], "code-num": ["14px", { lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "500" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-md": ["18px", { lineHeight: "26px", letterSpacing: "-0.005em", fontWeight: "600" }], "body-sm": ["12px", { lineHeight: "16px", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "600" }], "display-sm": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "700" }], "headline-lg": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><main class="flex flex-col flex-1 relative w-full bg-surface pt-safe pb-safe"><div class="flex flex-col w-full px-margin py-space-lg select-none">
+<!-- Top Ambient Glow & Warehouse Signal Header -->
+<div class="flex items-center justify-between w-full mb-space-lg">
+<div class="flex items-center space-x-space-xs bg-surface-container-low px-space-md py-space-xs rounded-full shadow-sm">
+<span class="inline-block w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+<span class="font-label-sm text-label-sm text-secondary tracking-wide uppercase">Cổng Dữ Liệu Vận Hành</span>
+</div>
+<div class="flex items-center space-x-1 text-on-surface-variant font-code-num text-body-sm">
+<span class="material-symbols-outlined text-sm text-secondary">wifi</span>
+<span>12ms</span>
+</div>
+</div>
+<!-- Brand Identity Section -->
+<div class="flex flex-col items-center justify-center text-center my-space-md">
+<!-- Elevated Soft Tactile App Icon -->
+<div class="relative flex items-center justify-center w-28 h-28 mb-space-lg">
+<div class="absolute inset-0 rounded-full bg-primary-container/20 blur-xl animate-pulse"></div>
+<div class="relative w-24 h-24 rounded-2xl bg-surface-container-lowest shadow-md flex items-center justify-center">
+<!-- Inner Subtle Recessed Pad -->
+<div class="w-16 h-16 rounded-xl bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">pallet</span>
+</div>
+</div>
+<!-- Orbiting Pulse Ring -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none -rotate-90" viewbox="0 0 112 112">
+<circle class="text-surface-variant" cx="56" cy="56" fill="none" r="50" stroke="currentColor" stroke-width="2.5"></circle>
+<circle class="text-primary-container" cx="56" cy="56" fill="none" id="brand-orbit" r="50" stroke="currentColor" stroke-dasharray="314" stroke-dashoffset="80" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+</div>
+<!-- App Name & Subtitle -->
+<h1 class="font-display-sm text-display-sm text-on-surface tracking-tight mb-1">PalletTrack WMS</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs">
+      Hệ Thống Quản Lý &amp; Điều Phối Pallet Thông Minh
+    </p>
+</div>
+<!-- Loading & Realtime Data Sync Bento Card -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-md my-space-sm">
+<!-- Percentage & Circular Progress Header -->
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface-variant">Tiến trình đồng bộ</span>
+<div class="flex items-baseline space-x-1">
+<span class="font-display-lg text-display-lg text-primary tracking-tight" id="sync-percentage">78%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">hoàn tất</span>
+</div>
+</div>
+<!-- Modern Cobalt Circular Progress Graphic -->
+<div class="relative w-14 h-14 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 48 48">
+<circle class="text-surface-container" cx="24" cy="24" fill="none" r="20" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary-container transition-all duration-500 ease-out" cx="24" cy="24" fill="none" id="circular-bar" r="20" stroke="currentColor" stroke-dasharray="125.6" stroke-dashoffset="27.6" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<span class="absolute material-symbols-outlined text-primary-container text-lg animate-spin" style="animation-duration: 4s;">sync</span>
+</div>
+</div>
+<!-- Linear Smooth Bar Indicator -->
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden mb-space-md">
+<div class="h-full bg-primary-container rounded-full transition-all duration-700 ease-out" id="linear-bar" style="width: 78%;"></div>
+</div>
+<!-- Dynamic Status Message -->
+<div class="flex items-center space-x-space-xs py-space-xs px-space-sm rounded-lg bg-surface-container-low mb-space-md">
+<span class="material-symbols-outlined text-sm text-primary animate-pulse">cloud_sync</span>
+<span class="font-code-num text-body-sm text-on-surface font-medium truncate">
+        Đang đồng bộ dữ liệu kho thời gian thực...
+      </span>
+</div>
+<!-- 4 System Verification Steps Checklist -->
+<div class="flex flex-col space-y-space-sm">
+<!-- Step 1: Confirmed -->
+<div class="flex items-center justify-between p-space-xs rounded-lg transition-colors bg-surface-bright">
+<div class="flex items-center space-x-space-sm min-w-0">
+<div class="w-7 h-7 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container shrink-0">
+<span class="material-symbols-outlined text-base font-bold">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface truncate">
+            Xác thực phiên làm việc &amp; phân quyền ca
+          </span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary shrink-0 ml-2">Đã xong</span>
+</div>
+<!-- Step 2: Confirmed -->
+<div class="flex items-center justify-between p-space-xs rounded-lg transition-colors bg-surface-bright">
+<div class="flex items-center space-x-space-sm min-w-0">
+<div class="w-7 h-7 rounded-full bg-secondary-container/40 flex items-center justify-center text-on-secondary-container shrink-0">
+<span class="material-symbols-outlined text-base font-bold">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface truncate">
+            Tải sơ đồ kệ vị trí &amp; khu đệm (WH-01)
+          </span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary shrink-0 ml-2">Đã xong</span>
+</div>
+<!-- Step 3: In Progress (Pulse Active) -->
+<div class="flex items-center justify-between p-space-xs rounded-lg bg-surface-container-low">
+<div class="flex items-center space-x-space-sm min-w-0">
+<div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary-container shrink-0">
+<span class="material-symbols-outlined text-base animate-spin">progress_activity</span>
+</div>
+<span class="font-headline-sm text-body-md text-primary font-semibold truncate">
+            Nạp danh sách thẻ pallet đang chờ điều chuyển (04 kiện)
+          </span>
+</div>
+<span class="font-label-sm text-label-sm text-primary-container shrink-0 ml-2 animate-pulse">Đang nạp</span>
+</div>
+<!-- Step 4: Queued -->
+<div class="flex items-center justify-between p-space-xs rounded-lg opacity-60">
+<div class="flex items-center space-x-space-sm min-w-0">
+<div class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-base">radio_button_unchecked</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant truncate">
+            Khởi tạo cảm biến camera AI &amp; máy quét Bluetooth
+          </span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0 ml-2">Chờ xử lý</span>
+</div>
+</div>
+</div>
+<!-- Warehouse Terminal & System Diagnostics Card -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md my-space-md shadow-sm">
+<div class="flex flex-col space-y-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-space-xs">
+<span class="material-symbols-outlined text-base text-on-surface-variant">precision_manufacturing</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Thông tin thiết bị trạm</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-on-surface px-2 py-0.5 rounded-full">KHO CHÍNH (ZONE A)</span>
+</div>
+<div class="flex items-center justify-between font-code-num text-body-sm text-on-surface pt-1">
+<span class="font-medium">Honeywell EDA51</span>
+<span class="text-on-surface-variant">IP: 192.168.1.104</span>
+</div>
+</div>
+</div>
+<!-- Operational Footer Security Connection -->
+<div class="flex flex-col items-center justify-center text-center mt-auto py-space-sm">
+<div class="flex items-center space-x-space-xs text-secondary mb-1">
+<span class="material-symbols-outlined text-base">verified_user</span>
+<span class="font-label-sm text-label-sm font-semibold">Đang kết nối Cloud ERP WMS tốc độ cao (12ms)</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+      Mã hóa đầu cuối TLS 1.3 • PalletTrack Node VN-SGN-02
+    </span>
+</div>
+<script>
+    (function() {
+      // Micro-interactive simulation for realistic warehouse sync feedback
+      let currentProgress = 78;
+      const progressLabel = document.getElementById('sync-percentage');
+      const circularBar = document.getElementById('circular-bar');
+      const linearBar = document.getElementById('linear-bar');
+      const totalCircumference = 125.6;
+
+      const syncInterval = setInterval(() => {
+        if (currentProgress < 96) {
+          currentProgress += Math.floor(Math.random() * 3) + 1;
+          if (currentProgress > 96) currentProgress = 96;
+          
+          if (progressLabel) {
+            progressLabel.textContent = currentProgress + '%';
+          }
+          if (linearBar) {
+            linearBar.style.width = currentProgress + '%';
+          }
+          if (circularBar) {
+            const offset = totalCircumference - (totalCircumference * currentProgress / 100);
+            circularBar.style.strokeDashoffset = offset;
+          }
+        } else {
+          clearInterval(syncInterval);
+        }
+      }, 1200);
+    })();
+  </script>
+</div></main></body></html>

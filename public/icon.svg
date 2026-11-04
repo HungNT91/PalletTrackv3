@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0052d9" />
+      <stop offset="100%" stop-color="#00358e" />
+    </linearGradient>
+    <linearGradient id="boxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e0edff" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#001a4d" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+
+  <!-- Inner Badge Group with Shadow -->
+  <g filter="url(#shadow)">
+    <!-- Pallet Top Deck Boards -->
+    <rect x="96" y="296" width="320" height="20" rx="6" fill="url(#boxGrad)" />
+    <rect x="96" y="340" width="320" height="16" rx="5" fill="url(#boxGrad)" opacity="0.9" />
+
+    <!-- Pallet Stringer / Blocks -->
+    <rect x="112" y="316" width="48" height="24" rx="4" fill="url(#boxGrad)" />
+    <rect x="232" y="316" width="48" height="24" rx="4" fill="url(#boxGrad)" />
+    <rect x="352" y="316" width="48" height="24" rx="4" fill="url(#boxGrad)" />
+
+    <!-- Cargo Stack: Box 1 (Left) -->
+    <rect x="116" y="196" width="130" height="88" rx="8" fill="url(#boxGrad)" />
+    <path d="M116 226 L246 226" stroke="#004ac6" stroke-width="4" stroke-dasharray="6,4" opacity="0.6" />
+    <!-- Mini QR Pattern on Box 1 -->
+    <rect x="136" y="240" width="32" height="32" rx="3" fill="#004ac6" />
+    <rect x="142" y="246" width="8" height="8" fill="#ffffff" />
+    <rect x="154" y="246" width="8" height="8" fill="#ffffff" />
+    <rect x="142" y="258" width="8" height="8" fill="#ffffff" />
+
+    <!-- Cargo Stack: Box 2 (Right) -->
+    <rect x="262" y="164" width="134" height="120" rx="8" fill="url(#boxGrad)" />
+    <path d="M262 204 L396 204" stroke="#004ac6" stroke-width="4" stroke-dasharray="6,4" opacity="0.6" />
+    <!-- Checkmark Badge on Box 2 -->
+    <circle cx="348" cy="244" r="18" fill="#10b981" />
+    <path d="M340 244 L346 250 L358 238" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Scanning Laser / Signal Beam -->
+    <path d="M72 136 L440 136" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" opacity="0.85" />
+    <!-- Corner Scan Brackets -->
+    <path d="M72 168 L72 136 L104 136" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M440 168 L440 136 L408 136" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
