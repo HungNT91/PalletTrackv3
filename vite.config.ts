@@ -4,9 +4,10 @@ import path from 'path';
 import {defineConfig} from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
+  const isBuild = command === 'build';
   return {
-    base: './',
+    base: isBuild ? './' : '/',
     plugins: [
       react(),
       tailwindcss(),

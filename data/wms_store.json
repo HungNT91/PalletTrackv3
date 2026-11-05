@@ -411,12 +411,20 @@
     "station": "WH-01 • Kho A (Quản Lý Kho)",
     "deviceId": "Thiết bị cầm tay PDA WMS",
     "shiftName": "Ca làm việc tiêu chuẩn",
-    "loginTime": "11:23",
+    "loginTime": "11:29",
     "status": "online",
     "ipAddress": "192.168.1.104",
     "pingMs": 12
   },
   "auditLogs": [
+    {
+      "id": "LOG-1793852940519-776",
+      "timestamp": "Vừa xong",
+      "action": "CẬP NHẬT PHIÊN LÀM VIỆC",
+      "details": "Nhân viên Nguyễn Tiến Hưng (hungnt91) đăng nhập tại trạm WH-01 • Kho A (Quản Lý Kho)",
+      "operator": "Nguyễn Tiến Hưng",
+      "type": "info"
+    },
     {
       "id": "LOG-1793852619565-744",
       "timestamp": "Vừa xong",
