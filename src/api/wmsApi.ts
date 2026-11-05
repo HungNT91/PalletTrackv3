@@ -99,11 +99,6 @@ export const wmsApi = {
       }
     }
 
-    try {
-      const res = await fetch('/api/stats');
-      if (res.ok) return await res.json();
-    } catch {}
-
     const store = getLocalStore();
     return computeLocalStats(store);
   },
@@ -138,11 +133,6 @@ export const wmsApi = {
       }
     }
 
-    try {
-      const res = await fetch('/api/pallets');
-      if (res.ok) return await res.json();
-    } catch {}
-
     return getLocalStore().pallets;
   },
 
@@ -175,11 +165,6 @@ export const wmsApi = {
         console.warn('Supabase getPalletById failed, fallback to local:', err);
       }
     }
-
-    try {
-      const res = await fetch(`/api/pallets/${encodeURIComponent(id)}`);
-      if (res.ok) return await res.json();
-    } catch {}
 
     const pallet = getLocalStore().pallets.find(p => p.id.toUpperCase() === id.toUpperCase());
     if (!pallet) throw new Error(`Không tìm thấy pallet ${id}`);
@@ -225,15 +210,6 @@ export const wmsApi = {
         throw err;
       }
     }
-
-    try {
-      const res = await fetch('/api/pallets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(palletData),
-      });
-      if (res.ok) return await res.json();
-    } catch {}
 
     const store = getLocalStore();
     const newPallet: Pallet = {
@@ -286,11 +262,6 @@ export const wmsApi = {
         console.warn('Supabase getLocations failed, fallback to local:', err);
       }
     }
-
-    try {
-      const res = await fetch('/api/locations');
-      if (res.ok) return await res.json();
-    } catch {}
 
     return getLocalStore().locations;
   },
@@ -358,15 +329,6 @@ export const wmsApi = {
       }
     }
 
-    try {
-      const query = new URLSearchParams();
-      if (params?.status) query.set('status', params.status);
-      if (params?.search) query.set('search', params.search);
-      if (params?.dest) query.set('dest', params.dest);
-      const res = await fetch(`/api/cards?${query.toString()}`);
-      if (res.ok) return await res.json();
-    } catch {}
-
     let list = getLocalStore().cards;
     if (params?.status && params.status !== 'all') {
       const targetStatus = params.status.toUpperCase();
@@ -423,11 +385,6 @@ export const wmsApi = {
         console.warn('Supabase getCardById failed, fallback to local:', err);
       }
     }
-
-    try {
-      const res = await fetch(`/api/cards/${encodeURIComponent(id)}`);
-      if (res.ok) return await res.json();
-    } catch {}
 
     const card = getLocalStore().cards.find(c => c.id === id);
     if (!card) throw new Error(`Không tìm thấy thẻ ${id}`);
@@ -526,15 +483,6 @@ export const wmsApi = {
         throw err;
       }
     }
-
-    try {
-      const res = await fetch('/api/cards', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cardData),
-      });
-      if (res.ok) return await res.json();
-    } catch {}
 
     const store = getLocalStore();
     let pallet = store.pallets.find(p => p.id.toUpperCase() === cardData.palletId.toUpperCase());
@@ -689,15 +637,6 @@ export const wmsApi = {
       }
     }
 
-    try {
-      const res = await fetch(`/api/cards/${encodeURIComponent(cardId)}/reconcile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ operatorName }),
-      });
-      if (res.ok) return await res.json();
-    } catch {}
-
     const store = getLocalStore();
     const card = store.cards.find(c => c.id === cardId);
     if (!card) throw new Error('Không tìm thấy thẻ điều chuyển');
@@ -782,22 +721,10 @@ export const wmsApi = {
   },
 
   async getShift(): Promise<ShiftSession> {
-    try {
-      const res = await fetch('/api/shift');
-      if (res.ok) return await res.json();
-    } catch {}
     return getLocalStore().shift;
   },
 
   async updateShift(session: Partial<ShiftSession>): Promise<ShiftSession> {
-    try {
-      const res = await fetch('/api/shift', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(session),
-      });
-      if (res.ok) return await res.json();
-    } catch {}
     const store = getLocalStore();
     store.shift = { ...store.shift, ...session };
     saveLocalStore(store);
@@ -832,18 +759,10 @@ export const wmsApi = {
       }
     }
 
-    try {
-      const res = await fetch('/api/audit-logs');
-      if (res.ok) return await res.json();
-    } catch {}
     return getLocalStore().auditLogs;
   },
 
   async resetData(): Promise<{ message: string }> {
-    try {
-      const res = await fetch('/api/reset-data', { method: 'POST' });
-      if (res.ok) return await res.json();
-    } catch {}
     localStorage.removeItem(CLIENT_STORAGE_KEY);
     getLocalStore();
     return { message: 'Dữ liệu đã được đặt lại về mặc định' };
