@@ -81,6 +81,7 @@ export interface AuditLog {
 export interface ShiftSession {
   operatorCode: string;
   operatorName: string;
+  role?: string;
   station: string;
   deviceId: string;
   shiftName: string;

@@ -549,6 +549,8 @@ export const wmsApi = {
   async batchCreateCards(items: Array<{
     palletId: string;
     destination: string;
+    destinationCode?: string;
+    driver?: string;
     quantity?: number;
     notes?: string;
   }>): Promise<TransferCard[]> {
@@ -558,13 +560,22 @@ export const wmsApi = {
     for (const item of items) {
       const loc =
         locations.find(
-          l => l.code === item.destination || l.name.toLowerCase().includes(item.destination.toLowerCase())
-        ) || locations[0];
+          l =>
+            (item.destinationCode && l.code.toUpperCase() === item.destinationCode.toUpperCase()) ||
+            l.code.toUpperCase() === item.destination.toUpperCase() ||
+            l.name.toLowerCase().includes(item.destination.toLowerCase())
+        );
+
+      const destCode =
+        item.destinationCode ||
+        (loc ? loc.code : item.destination.includes('-') ? item.destination : 'TS-01');
+      const destName = loc ? loc.name : item.destination;
 
       const card = await this.createCard({
         palletId: item.palletId,
-        destinationLocation: loc ? loc.name : item.destination,
-        destinationCode: loc ? loc.code : 'TS-01',
+        destinationLocation: destName,
+        destinationCode: destCode,
+        driver: item.driver || 'Trần Minh',
         notes: item.notes,
       });
       createdList.push(card);

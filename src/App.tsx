@@ -45,6 +45,21 @@ export default function App() {
     return null;
   });
 
+  // Phân quyền: Chỉ tài khoản có chức danh Quản lý kho mới được hiển thị và truy cập tab Nhập file
+  const isManager = Boolean(
+    shift?.role?.toLowerCase().includes('quản lý') ||
+    shift?.role?.toLowerCase().includes('quan ly') ||
+    shift?.role?.toLowerCase().includes('manager') ||
+    shift?.operatorCode?.toUpperCase().startsWith('QL')
+  );
+
+  // Tự động chuyển hướng về tab Quét mã nếu người dùng không phải Quản lý kho cố truy cập tab Nhập file
+  useEffect(() => {
+    if (activeTab === 'import' && !isManager) {
+      setActiveTab('scan');
+    }
+  }, [activeTab, isManager]);
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_SESSION_KEY);
@@ -220,16 +235,22 @@ export default function App() {
     }
   };
 
-  // Handle batch import from spreadsheet
+  // Handle batch import from spreadsheet into Supabase
   const handleBatchImport = async (
-    items: Array<{ palletId: string; destination: string; quantity: number; notes: string }>
+    items: Array<{
+      palletId: string;
+      destination: string;
+      destinationCode?: string;
+      driver?: string;
+      notes?: string;
+    }>
   ) => {
     try {
       const created = await wmsApi.batchCreateCards(items);
-      showToast(`Đã nạp thành công ${created.length} thẻ chờ vào máy chủ WMS!`, 'success', 'cloud_done');
+      showToast(`Đã nạp thành công ${created.length} thẻ vào Supabase Database!`, 'success', 'cloud_done');
       await fetchData();
     } catch (err: any) {
-      showToast(err.message || 'Lỗi khi import hàng loạt', 'error');
+      showToast(err.message || 'Lỗi khi import hàng loạt vào Supabase', 'error');
     }
   };
 
@@ -301,7 +322,7 @@ export default function App() {
           <ScanEntryTab
             recentPallets={pallets}
             onOpenDestinationModal={handleOpenDestModal}
-            onNavigateToImport={() => setActiveTab('import')}
+            onNavigateToImport={isManager ? () => setActiveTab('import') : undefined}
           />
         )}
 
@@ -434,20 +455,22 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 4: Import (Bulk Ingest) */}
-        {activeTab === 'import' && (
+        {/* Tab 4: Import (Bulk Ingest) - Chỉ Quản lý kho mới được hiển thị và truy cập */}
+        {activeTab === 'import' && isManager && (
           <BulkImportTab
+            locations={locations}
             onBatchImport={handleBatchImport}
             onSuccessNavigate={() => setActiveTab('queue')}
           />
         )}
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation (Chỉ hiện tab Nhập file cho Quản lý kho) */}
       <BottomNav
         activeTab={activeTab}
         onChangeTab={setActiveTab}
         pendingCount={pendingCards.length}
+        isManager={isManager}
       />
 
       {/* Destination Location Modal */}

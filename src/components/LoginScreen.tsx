@@ -49,6 +49,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       const session: ShiftSession = {
         operatorCode: emp.code,
         operatorName: emp.name,
+        role: emp.role,
         station: `WH-01 • Kho A (${emp.role})`,
         deviceId: 'Thiết bị cầm tay PDA WMS',
         shiftName: 'Ca làm việc tiêu chuẩn',
