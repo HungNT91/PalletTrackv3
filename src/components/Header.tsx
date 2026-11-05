@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShiftSession } from '../types';
 import { PWAInstallButton } from './PWAInstallButton';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 interface HeaderProps {
   shift: ShiftSession | null;
@@ -54,9 +55,13 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse flex-shrink-0"></span>
-                <span className="text-[10px] sm:text-[11px] text-emerald-700 truncate font-semibold uppercase tracking-wider">
-                  Online • {shift?.pingMs || 12}ms
+                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse flex-shrink-0 ${
+                  isSupabaseConfigured ? 'bg-emerald-500' : 'bg-amber-500'
+                }`}></span>
+                <span className={`text-[10px] sm:text-[11px] truncate font-semibold uppercase tracking-wider ${
+                  isSupabaseConfigured ? 'text-emerald-700' : 'text-amber-700'
+                }`}>
+                  {isSupabaseConfigured ? `Supabase Live • ${shift?.pingMs || 12}ms` : 'LocalStorage Mode'}
                 </span>
               </div>
             </div>

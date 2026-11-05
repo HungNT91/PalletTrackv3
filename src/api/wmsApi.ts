@@ -199,10 +199,11 @@ export const wmsApi = {
           .single();
 
         if (error) {
-          console.error('[Supabase Error] Cập nhật transfer_cards thất bại:', error);
+          console.error('[Supabase Error] Ghi bảng pallets thất bại:', error);
+          throw new Error(`[Supabase Pallet Error] ${error.message} (code: ${error.code})`);
         }
 
-        if (!error && data) {
+        if (data) {
           return {
             id: data.id,
             status: data.status,
@@ -219,8 +220,9 @@ export const wmsApi = {
             notes: palletData.notes || '',
           };
         }
-      } catch (err) {
-        console.warn('Supabase createPallet failed, fallback to local:', err);
+      } catch (err: any) {
+        console.error('Supabase createPallet error:', err);
+        throw err;
       }
     }
 
@@ -453,6 +455,20 @@ export const wmsApi = {
           .upsert({ id: cardData.palletId, status: 'PENDING' }, { onConflict: 'id' });
         if (palletErr) {
           console.error('[Supabase Error] Ghi bảng pallets thất bại:', palletErr);
+          throw new Error(`[Supabase Pallet Error] ${palletErr.message} (code: ${palletErr.code})`);
+        }
+
+        // 1.1 Tự động bổ sung destination_code vào warehouse_locations để không vi phạm khóa ngoại FK
+        if (cardData.destinationCode) {
+          const { error: locErr } = await supabase
+            .from('warehouse_locations')
+            .upsert({
+              code: cardData.destinationCode,
+              name: cardData.destinationLocation || cardData.destinationCode,
+            }, { onConflict: 'code' });
+          if (locErr) {
+            console.warn('[Supabase Warning] Tự động cập nhật location cảnh báo:', locErr.message);
+          }
         }
 
         // 2. Tạo bản ghi mới trong bảng transfer_cards
@@ -473,9 +489,10 @@ export const wmsApi = {
 
         if (error) {
           console.error('[Supabase Error] Ghi bảng transfer_cards thất bại:', error);
+          throw new Error(`[Supabase Transfer Card Error] ${error.message} (code: ${error.code})`);
         }
 
-        if (!error && data) {
+        if (data) {
           // 3. Ghi nhật ký vào bảng audit_logs
           await supabase.from('audit_logs').insert({
             transfer_card_id: cardId,
@@ -504,8 +521,9 @@ export const wmsApi = {
             notes: data.notes || '',
           };
         }
-      } catch (err) {
-        console.warn('Supabase createCard failed, fallback to local:', err);
+      } catch (err: any) {
+        console.error('Supabase createCard error:', err);
+        throw err;
       }
     }
 
@@ -626,9 +644,10 @@ export const wmsApi = {
 
         if (error) {
           console.error('[Supabase Error] Cập nhật transfer_cards thất bại:', error);
+          throw new Error(`[Supabase Reconcile Error] ${error.message} (code: ${error.code})`);
         }
 
-        if (!error && data) {
+        if (data) {
           // 2. Cập nhật pallet sang COMPLETED
           if (data.pallet_id) {
             await supabase
@@ -664,8 +683,9 @@ export const wmsApi = {
             notes: data.notes || '',
           };
         }
-      } catch (err) {
-        console.warn('Supabase reconcileCard failed, fallback to local:', err);
+      } catch (err: any) {
+        console.error('Supabase reconcileCard error:', err);
+        throw err;
       }
     }
 
