@@ -9,10 +9,10 @@ interface LoginScreenProps {
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onLogin,
-  initialOperatorCode = 'OP-2048',
+  initialOperatorCode = '',
 }) => {
   const [operatorCode, setOperatorCode] = useState(initialOperatorCode);
-  const [password, setPassword] = useState('123456');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   setOperatorCode(e.target.value);
                   if (errorMessage) setErrorMessage(null);
                 }}
-                placeholder="Ví dụ: OP-2048, K01, T01..."
+                placeholder="Nhập mã nhân viên..."
                 className="w-full h-11 pl-10 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-code-md font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#004ac6] transition-all uppercase"
               />
             </div>

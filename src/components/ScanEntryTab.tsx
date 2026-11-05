@@ -1,10 +1,52 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import jsQR from 'jsqr';
 import { Pallet } from '../types';
 
 interface ScanEntryTabProps {
   onOpenDestinationModal: (pallet: Pallet) => void;
   onNavigateToImport?: () => void;
   recentPallets?: Pallet[];
+}
+
+// Hàm phát âm thanh Beep khi quét mã QR/Barcode thành công
+function playBeepSound() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.12);
+  } catch {}
+}
+
+// Bóc tách mã pallet từ chuỗi quét (hỗ trợ cả JSON, URL, chuỗi thường)
+function extractPalletCode(raw: string): string {
+  const trimmed = raw.trim();
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (parsed.id) return String(parsed.id).trim().toUpperCase();
+    if (parsed.palletId) return String(parsed.palletId).trim().toUpperCase();
+  } catch {}
+
+  if (trimmed.includes('/')) {
+    const parts = trimmed.split('/');
+    const last = parts[parts.length - 1];
+    if (/^[KT]\d+$/i.test(last)) return last.toUpperCase();
+  }
+
+  return trimmed.toUpperCase();
 }
 
 export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
@@ -15,39 +57,23 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
   const [detectedPallet, setDetectedPallet] = useState<Pallet | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const [torchActive, setTorchActive] = useState<boolean>(false);
+  // Camera states
   const [cameraActive, setCameraActive] = useState<boolean>(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [torchActive, setTorchActive] = useState<boolean>(false);
+  const [torchSupported, setTorchSupported] = useState<boolean>(false);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [isScanSuccessAnim, setIsScanSuccessAnim] = useState<boolean>(false);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const animFrameIdRef = useRef<number | null>(null);
+  const lastScannedTimeRef = useRef<number>(0);
 
-  // Setup actual camera if user allows
-  useEffect(() => {
-    let stream: MediaStream | null = null;
-    if (mode === 'scan') {
-      navigator.mediaDevices
-        ?.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(s => {
-          stream = s;
-          if (videoRef.current) {
-            videoRef.current.srcObject = s;
-            setCameraActive(true);
-          }
-        })
-        .catch(() => {
-          // Fallback to simulated high-tech camera feed
-          setCameraActive(false);
-        });
-    }
-
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [mode]);
-
-  // Validate QR code format: Starts with K or T, followed by digits (e.g. K01, T01, K111, T111, K1024)
-  const validateAndSetCode = (rawVal: string) => {
-    const formatted = rawVal.trim().toUpperCase();
+  // Validate QR code format: Starts with K or T, followed by digits (e.g. K01, T01, K11, T02...)
+  const validateAndSetCode = useCallback((rawVal: string) => {
+    const formatted = extractPalletCode(rawVal);
     setPalletCode(formatted);
 
     if (!formatted) {
@@ -56,21 +82,18 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
       return;
     }
 
-    // Check first character must be K or T
     if (!formatted.startsWith('K') && !formatted.startsWith('T')) {
       setValidationError('Mã pallet phải bắt đầu bằng chữ "K" hoặc "T" (Ví dụ: K01, T01)');
       setDetectedPallet(null);
       return;
     }
 
-    // If only K or T has been entered
     if (formatted.length === 1) {
       setValidationError('Vui lòng nhập thêm số pallet (Ví dụ: K01, T01)');
       setDetectedPallet(null);
       return;
     }
 
-    // Format: K or T followed by 1 or more digits
     const isValidFormat = /^[KT]\d+$/.test(formatted);
 
     if (isValidFormat) {
@@ -84,13 +107,210 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
         packaging: 'Tiêu chuẩn',
         category: formatted.startsWith('K') ? 'Kiện lưu kho' : 'Thùng hàng',
         priority: 'normal',
-        currentLocation: 'Kho WH-01 Sàn bốc',
+        currentLocation: 'Kho WH-01 Sàn bốc dỡ',
         status: 'PENDING',
       });
     } else {
       setValidationError('Sau chữ cái K hoặc T phải là các chữ số (Ví dụ: K01, T01)');
       setDetectedPallet(null);
     }
+  }, []);
+
+  // Xử lý khi camera phát hiện mã
+  const handleDetectedCode = useCallback((code: string) => {
+    const now = Date.now();
+    // Giảm tần suất quét lặp lại (ít nhất 1.2s giữa 2 lần nhận diện)
+    if (now - lastScannedTimeRef.current < 1200) {
+      return;
+    }
+    lastScannedTimeRef.current = now;
+
+    const formatted = extractPalletCode(code);
+    if (!formatted) return;
+
+    // Phát âm thanh và rung
+    playBeepSound();
+    if (navigator.vibrate) {
+      navigator.vibrate([60, 40, 60]);
+    }
+
+    // Hiệu ứng flash viền xanh thành công
+    setIsScanSuccessAnim(true);
+    setTimeout(() => setIsScanSuccessAnim(false), 800);
+
+    validateAndSetCode(formatted);
+  }, [validateAndSetCode]);
+
+  // Khởi động Camera stream
+  const startCamera = useCallback(async () => {
+    // Dừng stream cũ nếu có
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+
+    setCameraError(null);
+    setCameraActive(false);
+
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Trình duyệt không hỗ trợ truy cập máy ảnh');
+      }
+
+      let stream: MediaStream;
+      try {
+        // Thử camera sau (environment)
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: facingMode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+      } catch {
+        // Fallback camera bất kỳ nếu facingMode không được hỗ trợ
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute('playsinline', 'true');
+        await videoRef.current.play();
+        setCameraActive(true);
+      }
+
+      // Kiểm tra hỗ trợ đèn flash
+      const track = stream.getVideoTracks()[0];
+      if (track) {
+        const capabilities = (track.getCapabilities?.() || {}) as any;
+        setTorchSupported(Boolean(capabilities?.torch));
+      }
+    } catch (err: any) {
+      console.warn('Lỗi mở Camera:', err);
+      setCameraActive(false);
+      setCameraError(
+        err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'
+          ? 'Quyền truy cập Camera bị từ chối. Vui lòng cho phép quyền máy ảnh trong cài đặt trình duyệt.'
+          : 'Không thể kết nối với máy ảnh. Bạn có thể chuyển sang tab Nhập tay.'
+      );
+    }
+  }, [facingMode]);
+
+  // Vòng lặp giải mã khung hình QR / Barcode liên tục từ Video
+  useEffect(() => {
+    if (mode !== 'scan') {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      setCameraActive(false);
+      return;
+    }
+
+    startCamera();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+    };
+  }, [mode, startCamera]);
+
+  // Quét từng frame khi camera đã active
+  useEffect(() => {
+    if (!cameraActive || mode !== 'scan') return;
+
+    let isScanning = true;
+
+    const scanFrame = async () => {
+      if (!isScanning) return;
+
+      const video = videoRef.current;
+      if (video && video.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
+        if (!canvasRef.current) {
+          canvasRef.current = document.createElement('canvas');
+        }
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        if (ctx) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          let detectedValue: string | null = null;
+
+          // 1. Thử BarcodeDetector native nếu trình duyệt hỗ trợ (siêu nhanh)
+          if ('BarcodeDetector' in window) {
+            try {
+              const detector = new (window as any).BarcodeDetector({
+                formats: ['qr_code', 'code_128', 'code_39', 'ean_13', 'ean_8', 'data_matrix'],
+              });
+              const barcodes = await detector.detect(canvas);
+              if (barcodes.length > 0 && barcodes[0].rawValue) {
+                detectedValue = barcodes[0].rawValue;
+              }
+            } catch {}
+          }
+
+          // 2. Dùng thư viện jsQR giải mã ảnh
+          if (!detectedValue) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
+              inversionAttempts: 'dontInvert',
+            });
+            if (qrCode && qrCode.data) {
+              detectedValue = qrCode.data;
+            }
+          }
+
+          if (detectedValue) {
+            handleDetectedCode(detectedValue);
+          }
+        }
+      }
+
+      if (isScanning) {
+        animFrameIdRef.current = requestAnimationFrame(scanFrame);
+      }
+    };
+
+    animFrameIdRef.current = requestAnimationFrame(scanFrame);
+
+    return () => {
+      isScanning = false;
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+    };
+  }, [cameraActive, mode, handleDetectedCode]);
+
+  // Bật/tắt đèn Flash (Torch)
+  const toggleTorch = async () => {
+    try {
+      const track = streamRef.current?.getVideoTracks()[0];
+      if (!track) return;
+      const next = !torchActive;
+      await (track as any).applyConstraints?.({ advanced: [{ torch: next }] });
+      setTorchActive(next);
+    } catch (e) {
+      console.warn('Thiết bị không hỗ trợ bật đèn pin:', e);
+    }
+  };
+
+  // Đổi camera Trước / Sau
+  const toggleFacingMode = () => {
+    setFacingMode(prev => (prev === 'environment' ? 'user' : 'environment'));
   };
 
   const handleClear = () => {
@@ -105,9 +325,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
       if (text) {
         validateAndSetCode(text.trim());
       }
-    } catch {
-      // no-op if paste fails
-    }
+    } catch {}
   };
 
   const handleContinue = () => {
@@ -118,12 +336,12 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
 
   return (
     <div className="flex flex-col w-full px-3 sm:px-4 max-w-2xl mx-auto pb-8 pt-1 sm:pt-2 touch-pan-y">
-      {/* Top Hero & Warehouse Zone Meta */}
+      {/* Top Header */}
       <div className="pt-1 sm:pt-2 pb-1.5 sm:pb-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col min-w-0">
             <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#004ac6] font-bold font-code-md truncate">
-              Khu Vực Nhập Kho A2 • WH-01
+              Khu Vực Nhập Kho • WH-01
             </span>
             <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight truncate">
               Nhận diện kiện Pallet
@@ -135,7 +353,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
           </div>
         </div>
         <p className="text-[11px] sm:text-xs text-slate-500 mt-1">
-          Quét mã phản quang hoặc gõ mã Pallet để lập lệnh điều chuyển vị trí lưu kho.
+          Đưa mã QR hoặc Barcode vào tâm camera để nhận diện tự động và lập lệnh điều chuyển.
         </p>
       </div>
 
@@ -145,7 +363,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
           <button
             type="button"
             onClick={() => setMode('scan')}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               mode === 'scan'
                 ? 'bg-white text-[#004ac6] shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -157,7 +375,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
           <button
             type="button"
             onClick={() => setMode('manual')}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               mode === 'manual'
                 ? 'bg-white text-[#004ac6] shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -172,104 +390,159 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
       {/* CAMERA SCANNER VIEW */}
       {mode === 'scan' ? (
         <div className="flex flex-col gap-3">
-          <div className="relative w-full rounded-2xl overflow-hidden bg-slate-900 shadow-xl flex flex-col items-center justify-center min-h-[300px]">
-            {/* Real or Simulated Camera View */}
-            {cameraActive ? (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-45 mix-blend-luminosity scale-105"
-                style={{
-                  backgroundImage:
-                    "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXeJqCNrHK8XnYSKEBeUaMTmgYJ0SGMDzF8weokJovGXak2pnu85-SLjTr-XvdGUqTbO-DyvyEty_nxeyiIu3J8Lq8O96lW3jpADCI2QlguvT63l67KAJDf1ZJuSyccLJQatF7KZwxZdDtDqDtvIzGDA0GUhVDvxuA5xBJoZNoSXxpMyAZ-p-NKDrs93hrhL0xE9lmE8RdyTWDhggXyIIcwO4e5A79FwzWwwdfw-GA')",
-                }}
-              />
+          <div className="relative w-full rounded-2xl overflow-hidden bg-slate-950 shadow-xl flex flex-col items-center justify-center min-h-[340px] sm:min-h-[380px]">
+            {/* Live Video Element */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                cameraActive ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+
+            {/* Camera error banner or loading */}
+            {!cameraActive && (
+              <div className="relative z-20 flex flex-col items-center justify-center p-6 text-center text-white max-w-sm">
+                {cameraError ? (
+                  <>
+                    <span className="material-symbols-outlined text-4xl text-amber-400 mb-2">
+                      videocam_off
+                    </span>
+                    <p className="text-xs text-slate-300 mb-4">{cameraError}</p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={startCamera}
+                        className="px-3 py-1.5 rounded-xl bg-[#004ac6] hover:bg-blue-600 text-white text-xs font-bold transition-all flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">refresh</span>
+                        <span>Thử lại</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMode('manual')}
+                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all"
+                      >
+                        Chuyển Nhập tay
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-4xl text-blue-400 mb-2 animate-spin">
+                      progress_activity
+                    </span>
+                    <p className="text-xs text-slate-300 font-medium">Đang khởi động Camera máy quét...</p>
+                  </>
+                )}
+              </div>
             )}
 
             {/* Gradient Scrim */}
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-transparent to-slate-950/90 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-transparent to-slate-950/80 pointer-events-none" />
 
             {/* Top HUD Controls */}
             <div className="absolute top-3 inset-x-3 flex items-center justify-between z-20">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/75 backdrop-blur-md text-white shadow-md border border-white/10">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white shadow-md border border-white/10">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                 <span className="text-[11px] uppercase font-bold tracking-wider font-code-md">
-                  AI Barcode Engine v3
+                  QR & Barcode Live
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Đổi Camera Trước / Sau */}
                 <button
                   type="button"
-                  onClick={() => setTorchActive(!torchActive)}
-                  title="Bật đèn Flash"
-                  className={`w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all shadow-md ${
-                    torchActive ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300' : 'bg-slate-900/70 text-white'
-                  }`}
+                  onClick={toggleFacingMode}
+                  title="Đổi camera trước/sau"
+                  className="w-9 h-9 rounded-full bg-slate-900/80 backdrop-blur-md flex items-center justify-center text-white transition-all shadow-md hover:bg-slate-800 border border-white/10 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
-                    {torchActive ? 'flashlight_off' : 'flash_on'}
-                  </span>
+                  <span className="material-symbols-outlined text-[18px]">flip_camera_ios</span>
                 </button>
+
+                {/* Đèn pin / Flash */}
+                {torchSupported && (
+                  <button
+                    type="button"
+                    onClick={toggleTorch}
+                    title="Bật/Tắt đèn Flash"
+                    className={`w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all shadow-md cursor-pointer ${
+                      torchActive
+                        ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300'
+                        : 'bg-slate-900/80 text-white border border-white/10'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {torchActive ? 'flashlight_off' : 'flash_on'}
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Reticle Box with Animated Scanning Laser */}
-            <div className="relative w-56 h-48 sm:w-64 sm:h-56 z-10 flex items-center justify-center pointer-events-none">
-              <div className="absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 rounded-br-xl border-b-4 border-r-4 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.6)]"></div>
+            <div
+              className={`relative w-64 h-52 sm:w-72 sm:h-60 z-10 flex items-center justify-center pointer-events-none transition-all duration-300 ${
+                isScanSuccessAnim ? 'scale-105' : 'scale-100'
+              }`}
+            >
+              {/* 4 Góc ngắm */}
+              <div
+                className={`absolute top-0 left-0 w-8 h-8 rounded-tl-xl border-t-4 border-l-4 transition-colors duration-300 ${
+                  isScanSuccessAnim
+                    ? 'border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.9)]'
+                    : 'border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]'
+                }`}
+              ></div>
+              <div
+                className={`absolute top-0 right-0 w-8 h-8 rounded-tr-xl border-t-4 border-r-4 transition-colors duration-300 ${
+                  isScanSuccessAnim
+                    ? 'border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.9)]'
+                    : 'border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]'
+                }`}
+              ></div>
+              <div
+                className={`absolute bottom-0 left-0 w-8 h-8 rounded-bl-xl border-b-4 border-l-4 transition-colors duration-300 ${
+                  isScanSuccessAnim
+                    ? 'border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.9)]'
+                    : 'border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]'
+                }`}
+              ></div>
+              <div
+                className={`absolute bottom-0 right-0 w-8 h-8 rounded-br-xl border-b-4 border-r-4 transition-colors duration-300 ${
+                  isScanSuccessAnim
+                    ? 'border-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.9)]'
+                    : 'border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]'
+                }`}
+              ></div>
 
-              {/* Animated Laser Line Sweep */}
+              {/* Tia Laser Quét chuyển động */}
               <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_12px_#38bdf8] animate-pulse"></div>
 
-              {/* Center Barcode Graphic Target */}
-              <div className="absolute inset-8 rounded-xl bg-slate-950/20 backdrop-blur-xs flex items-center justify-center p-2 opacity-75">
-                <div className="flex flex-col items-center justify-center text-white gap-1 text-center">
-                  <span className="material-symbols-outlined text-[36px] text-blue-300">
-                    qr_code_2
-                  </span>
-                  <span className="text-[11px] text-slate-200">
-                    Hướng vào tem nhãn Pallet (Ví dụ: K01, T01)
-                  </span>
+              {/* Hướng dẫn ở giữa */}
+              {!detectedPallet && (
+                <div className="absolute inset-8 rounded-xl bg-slate-950/20 backdrop-blur-xs flex items-center justify-center p-2 opacity-75">
+                  <div className="flex flex-col items-center justify-center text-white gap-1 text-center">
+                    <span className="material-symbols-outlined text-[32px] text-blue-300">
+                      qr_code_scanner
+                    </span>
+                    <span className="text-[11px] text-slate-200">
+                      Hướng camera vào tem nhãn QR hoặc Barcode
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Bottom Scanner Status */}
             <div className="absolute bottom-3 inset-x-4 flex flex-col items-center gap-1 z-20">
-              <span className="text-xs text-white bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full shadow border border-white/10 font-medium">
-                Hỗ trợ định dạng: K... hoặc T... (Ví dụ: K01, T01)
+              <span className="text-xs text-white bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-full shadow border border-white/10 font-medium">
+                Mã hợp lệ: Bắt đầu bằng K hoặc T (Ví dụ: K01, K11, T01, T02...)
               </span>
             </div>
-          </div>
-
-          {/* Bluetooth Scanner Connected */}
-          <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-[#004ac6]">
-                <span className="material-symbols-outlined text-[20px]">sensors</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-900">
-                  Đầu đọc Bluetooth / Súng quét
-                </span>
-                <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Súng Honeywell EDA51 kết nối
-                </span>
-              </div>
-            </div>
-            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-code-md text-xs font-semibold border border-slate-200">
-              Chờ quét mã
-            </span>
           </div>
         </div>
       ) : (
@@ -323,7 +596,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
                   type="button"
                   onClick={handlePaste}
                   title="Dán từ bộ nhớ tạm"
-                  className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#004ac6] text-xs font-bold flex items-center gap-1 transition-colors border border-blue-200"
+                  className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#004ac6] text-xs font-bold flex items-center gap-1 transition-colors border border-blue-200 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[16px]">content_paste</span>
                   <span>Dán</span>
@@ -346,21 +619,21 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
 
       {/* Streamlined Active Pallet Indicator */}
       {detectedPallet && (
-        <div className="mt-3 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between shadow-xs animate-fadeIn">
+        <div className="mt-3 p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between shadow-xs animate-fadeIn">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#004ac6] text-white flex items-center justify-center shadow-xs flex-shrink-0">
-              <span className="material-symbols-outlined text-[18px]">verified</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+              <span className="material-symbols-outlined text-[18px]">check_circle</span>
             </div>
             <div className="flex flex-col min-w-0">
               <span className="font-code-md text-sm font-bold text-slate-900 truncate">
-                Mã QR: {detectedPallet.id}
+                Đã nhận diện: {detectedPallet.id}
               </span>
-              <span className="text-[11px] text-slate-500 truncate">
+              <span className="text-[11px] text-slate-600 truncate">
                 Sẵn sàng chọn vị trí đích điều chuyển
               </span>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold uppercase flex-shrink-0">
+          <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold uppercase flex-shrink-0">
             Hợp lệ
           </span>
         </div>
@@ -372,7 +645,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
           type="button"
           disabled={!detectedPallet || !!validationError}
           onClick={handleContinue}
-          className="w-full h-13 rounded-2xl bg-[#004ac6] hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(0,74,198,0.28)] transition-all disabled:opacity-40 disabled:pointer-events-none"
+          className="w-full h-13 rounded-2xl bg-[#004ac6] hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(0,74,198,0.28)] transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
           <span className="material-symbols-outlined text-[22px]">near_me</span>
           <span>Chọn vị trí đích điều chuyển</span>

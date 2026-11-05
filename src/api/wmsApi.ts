@@ -670,13 +670,13 @@ export const wmsApi = {
     return card;
   },
 
-  // 5. Xác thực đăng nhập nhân viên
+  // 5. Xác thực đăng nhập nhân viên (100% từ Database Supabase)
   async loginEmployee(code: string, password: string): Promise<{ code: string; name: string; role: string } | null> {
     const cleanCode = code.trim().toUpperCase();
 
     if (supabase) {
       try {
-        // Cách 1: Gọi hàm RPC bảo mật
+        // Cách 1: Gọi hàm RPC bảo mật nếu đã cấu hình
         const { data: rpcData, error: rpcError } = await supabase.rpc('verify_employee_login', {
           p_code: cleanCode,
           p_password: password,
@@ -686,7 +686,7 @@ export const wmsApi = {
           return rpcData[0];
         }
 
-        // Cách 2: Truy vấn bảng employees nếu chưa tạo RPC
+        // Cách 2: Truy vấn bảng employees trực tiếp
         const { data: tableData, error: tableError } = await supabase
           .from('employees')
           .select('code, name, role')
@@ -695,26 +695,16 @@ export const wmsApi = {
           .eq('is_active', true)
           .maybeSingle();
 
-        if (!tableError && tableData) {
+        if (tableError) {
+          console.error('[Supabase Auth Error]:', tableError);
+        }
+
+        if (tableData) {
           return tableData;
         }
       } catch (err) {
-        console.warn('Supabase loginEmployee check failed, fallback to local:', err);
+        console.error('Lỗi kết nối Supabase khi đăng nhập:', err);
       }
-    }
-
-    // Fallback danh sách nội bộ
-    const found = INITIAL_EMPLOYEES.find(
-      e => e.code.toUpperCase() === cleanCode && e.password === password
-    );
-
-    if (found) {
-      return { code: found.code, name: found.name, role: found.role };
-    }
-
-    // Cho phép đăng nhập demo nếu chưa thiết lập mật khẩu khắt khe
-    if (password === '123456') {
-      return { code: cleanCode, name: cleanCode, role: 'Nhân viên vận hành' };
     }
 
     return null;

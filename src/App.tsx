@@ -23,7 +23,7 @@ import { LoginScreen } from './components/LoginScreen';
 const LOCAL_STORAGE_SESSION_KEY = 'pallettrack_operator_session';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('queue');
+  const [activeTab, setActiveTab] = useState<TabType>('scan');
   const [cards, setCards] = useState<TransferCard[]>([]);
   const [pallets, setPallets] = useState<Pallet[]>([]);
   const [locations, setLocations] = useState<WarehouseLocation[]>([]);
@@ -131,6 +131,7 @@ export default function App() {
       localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, JSON.stringify(newSession));
       setShift(newSession);
       setIsLoggedIn(true);
+      setActiveTab('scan');
 
       // 2. Synchronize with central WMS server
       try {
