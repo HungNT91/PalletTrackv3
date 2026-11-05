@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { ShiftSession } from '../types';
+import { wmsApi } from '../api/wmsApi';
 
 interface LoginScreenProps {
   onLogin: (session: ShiftSession) => Promise<void> | void;
   initialOperatorCode?: string;
 }
-
-// Known warehouse operator mapping for standard codes
-const KNOWN_OPERATORS: Record<string, string> = {
-  'OP-2048': 'Trần Minh',
-  'OP-5512': 'Lê Hữu Hoàng',
-  'OP-3104': 'Nguyễn Văn Đức',
-};
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onLogin,
@@ -41,16 +35,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       setIsSubmitting(true);
       setErrorMessage(null);
 
+      // Xác thực đăng nhập qua Supabase Database / LocalStore
+      const emp = await wmsApi.loginEmployee(cleanCode, password);
+      if (!emp) {
+        setErrorMessage('Mã nhân viên hoặc mật khẩu không chính xác!');
+        setIsSubmitting(false);
+        return;
+      }
+
       const now = new Date();
       const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-      // Resolve staff name (known operator or custom code)
-      const operatorName = KNOWN_OPERATORS[cleanCode] || cleanCode;
-
       const session: ShiftSession = {
-        operatorCode: cleanCode,
-        operatorName,
-        station: 'WH-01 • Kho A (Khu nhận diện pallet & tiền soạn)',
+        operatorCode: emp.code,
+        operatorName: emp.name,
+        station: `WH-01 • Kho A (${emp.role})`,
         deviceId: 'Thiết bị cầm tay PDA WMS',
         shiftName: 'Ca làm việc tiêu chuẩn',
         loginTime: timeStr,

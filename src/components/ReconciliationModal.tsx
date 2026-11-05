@@ -51,7 +51,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
       return;
     }
 
-    setIsCompleted(card.status === 'completed');
+    setIsCompleted(card.status === 'COMPLETED' || (card.status as string) === 'completed');
     setCopiedField(null);
 
     // Generate real scannable QR Code for Pallet
@@ -105,7 +105,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
   };
 
   const handleConfirm = async () => {
-    if (isCompleted || card.status === 'completed') {
+    if (isCompleted || card.status === 'COMPLETED' || (card.status as string) === 'completed') {
       onClose();
       return;
     }
@@ -125,7 +125,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
     }
   };
 
-  const alreadyCompleted = isCompleted || card.status === 'completed';
+  const alreadyCompleted = isCompleted || card.status === 'COMPLETED' || (card.status as string) === 'completed';
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-fadeIn">
@@ -150,7 +150,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
                   }`}
                 ></span>
                 <span className={`font-semibold ${alreadyCompleted ? 'text-emerald-700' : 'text-emerald-600'}`}>
-                  {alreadyCompleted ? 'Đã hoàn tất' : card.status === 'pending' ? 'Chờ Nhập' : card.statusLabel || 'Đang xử lý'}
+                  {alreadyCompleted ? 'Đã hoàn tất' : card.status === 'PENDING' || (card.status as string) === 'pending' ? 'Chờ Nhập' : card.statusLabel || 'Đang xử lý'}
                 </span>
               </div>
             </div>

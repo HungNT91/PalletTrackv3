@@ -29,8 +29,14 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
     { id: 'Rack Cắt Liều', label: 'Rack Cắt Liều', color: 'bg-blue-500' },
   ];
 
-  const pendingList = useMemo(() => cards.filter(c => c.status === 'pending'), [cards]);
-  const completedList = useMemo(() => cards.filter(c => c.status === 'completed'), [cards]);
+  const pendingList = useMemo(
+    () => cards.filter(c => c.status === 'PENDING' || (c.status as string) === 'pending'),
+    [cards]
+  );
+  const completedList = useMemo(
+    () => cards.filter(c => c.status === 'COMPLETED' || (c.status as string) === 'completed'),
+    [cards]
+  );
 
   const currentList = activeTab === 'pending' ? pendingList : completedList;
 
@@ -41,7 +47,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
         searchQuery === '' ||
         card.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         card.palletId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        card.driver.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (card.driver && card.driver.toLowerCase().includes(searchQuery.toLowerCase())) ||
         card.destinationLocation.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchChip =
@@ -54,8 +60,8 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
   }, [currentList, searchQuery, selectedFilter]);
 
   const getBorderColor = (card: TransferCard) => {
-    if (card.priority === 'urgent' || card.statusLabel.includes('Ưu tiên')) return 'bg-amber-500';
-    if (card.priority === 'high' || card.statusLabel.includes('Dễ vỡ')) return 'bg-emerald-500';
+    if (card.priority === 'urgent' || (card.statusLabel && card.statusLabel.includes('Ưu tiên'))) return 'bg-amber-500';
+    if (card.priority === 'high' || (card.statusLabel && card.statusLabel.includes('Dễ vỡ'))) return 'bg-emerald-500';
     if (card.destinationLocation.includes('Rack')) return 'bg-blue-500';
     return 'bg-slate-400';
   };
@@ -244,7 +250,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
           </div>
         ) : (
           filteredCards.map(card => {
-            const isDone = card.status === 'completed';
+            const isDone = card.status === 'COMPLETED' || (card.status as string) === 'completed';
             return (
               <div
                 key={card.id}

@@ -23,7 +23,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   };
 
-  const getLogIcon = (type: string) => {
+  const getLogIcon = (type?: string) => {
     switch (type) {
       case 'success':
         return 'check_circle';
@@ -34,7 +34,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   };
 
-  const getLogColor = (type: string) => {
+  const getLogColor = (type?: string) => {
     switch (type) {
       case 'success':
         return 'text-emerald-600 bg-emerald-50 border-emerald-200';

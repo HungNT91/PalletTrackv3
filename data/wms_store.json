@@ -1,6 +1,19 @@
 {
   "pallets": [
     {
+      "id": "K1123",
+      "name": "Kiện K1123",
+      "weight": 450,
+      "boxes": 36,
+      "spec": "Tiêu chuẩn",
+      "packaging": "Tiêu chuẩn",
+      "category": "Kiện lưu kho",
+      "priority": "normal",
+      "currentLocation": "Sàn bốc dỡ",
+      "status": "PENDING",
+      "notes": "Tạo mới qua máy quét"
+    },
+    {
       "id": "K9999",
       "name": "Kiện K9999",
       "weight": 420,
@@ -150,6 +163,35 @@
     }
   ],
   "cards": [
+    {
+      "id": "TX-8108",
+      "palletId": "K1123",
+      "pallet": {
+        "id": "K1123",
+        "name": "Kiện K1123",
+        "weight": 450,
+        "boxes": 36,
+        "spec": "Tiêu chuẩn",
+        "packaging": "Tiêu chuẩn",
+        "category": "Kiện lưu kho",
+        "priority": "normal",
+        "currentLocation": "Sàn bốc dỡ",
+        "status": "PENDING",
+        "notes": "Tạo mới qua máy quét"
+      },
+      "originLocation": "Sàn bốc dỡ",
+      "destinationLocation": "Tiền soạn 2",
+      "destinationCode": "TS-02",
+      "status": "PENDING",
+      "statusLabel": "Chờ Nhập",
+      "driver": "Trần Minh",
+      "priority": "normal",
+      "createdAt": "Vừa xong",
+      "created_at": "2026-11-05T03:03:02.937Z",
+      "completedAt": null,
+      "completed_at": null,
+      "notes": ""
+    },
     {
       "id": "TX-1157",
       "palletId": "K9999",
@@ -364,17 +406,41 @@
     }
   ],
   "shift": {
-    "operatorCode": "OP-2048",
-    "operatorName": "Trần Minh",
-    "station": "WH-01 • Kho A (Khu nhận diện pallet & tiền soạn)",
+    "operatorCode": "hungnt91",
+    "operatorName": "Nguyễn Tiến Hưng",
+    "station": "WH-01 • Kho A (Quản Lý Kho)",
     "deviceId": "Thiết bị cầm tay PDA WMS",
     "shiftName": "Ca làm việc tiêu chuẩn",
-    "loginTime": "20:52",
+    "loginTime": "11:23",
     "status": "online",
     "ipAddress": "192.168.1.104",
     "pingMs": 12
   },
   "auditLogs": [
+    {
+      "id": "LOG-1793852619565-744",
+      "timestamp": "Vừa xong",
+      "action": "CẬP NHẬT PHIÊN LÀM VIỆC",
+      "details": "Nhân viên Nguyễn Tiến Hưng (hungnt91) đăng nhập tại trạm WH-01 • Kho A (Quản Lý Kho)",
+      "operator": "Nguyễn Tiến Hưng",
+      "type": "info"
+    },
+    {
+      "id": "LOG-1793852579812-93",
+      "timestamp": "Vừa xong",
+      "action": "CẬP NHẬT PHIÊN LÀM VIỆC",
+      "details": "Nhân viên Trần Minh (OP-2048) đăng nhập tại trạm WH-01 • Kho A (Nhân viên vận hành)",
+      "operator": "Trần Minh",
+      "type": "info"
+    },
+    {
+      "id": "LOG-1793847782937-537",
+      "timestamp": "Vừa xong",
+      "action": "CREATE_TRANSFER_CARD",
+      "details": "Phát sinh lệnh TX-8108 cho kiện K1123 điều chuyển tới Tiền soạn 2",
+      "operator": "Trần Minh",
+      "type": "info"
+    },
     {
       "id": "LOG-1793800340438-6",
       "timestamp": "Vừa xong",

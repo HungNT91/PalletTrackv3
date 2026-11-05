@@ -261,7 +261,7 @@ export default function App() {
   };
 
   // Get current card for the dedicated "Chi tiết thẻ" tab
-  const pendingCards = cards.filter(c => c.status === 'pending');
+  const pendingCards = cards.filter(c => c.status === 'PENDING');
   const primaryPendingCard = pendingCards[0] || cards[0] || null;
 
   // If operator is not logged in, show dedicated LoginScreen
@@ -361,7 +361,7 @@ export default function App() {
                         Trạng thái
                       </span>
                       <span className="font-bold text-slate-800 mt-0.5 block truncate">
-                        {primaryPendingCard.status === 'completed' ? 'Đã hoàn tất' : 'Chờ Nhập'}
+                        {primaryPendingCard.status === 'COMPLETED' ? 'Đã hoàn tất' : 'Chờ Nhập'}
                       </span>
                     </div>
                   </div>
@@ -390,13 +390,13 @@ export default function App() {
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${
-                            card.status === 'completed'
+                            card.status === 'COMPLETED'
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : 'bg-blue-50 text-[#004ac6] border border-blue-200'
                           }`}
                         >
                           <span className="material-symbols-outlined text-[20px]">
-                            {card.status === 'completed' ? 'verified' : 'qr_code'}
+                            {card.status === 'COMPLETED' ? 'verified' : 'qr_code'}
                           </span>
                         </div>
                         <div>
@@ -415,7 +415,7 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-1.5 text-xs font-bold text-[#004ac6]">
-                        <span>{card.status === 'completed' ? 'Đã xong' : 'Đối soát'}</span>
+                        <span>{card.status === 'COMPLETED' ? 'Đã xong' : 'Đối soát'}</span>
                         <span className="material-symbols-outlined text-[16px]">chevron_right</span>
                       </div>
                     </div>

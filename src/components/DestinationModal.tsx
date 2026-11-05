@@ -29,7 +29,7 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
   if (!isOpen || !pallet) return null;
 
   const handleSave = async () => {
-    const loc = locations.find(l => l.id === selectedLocId) || locations[0];
+    const loc = locations.find(l => l.code === selectedLocId || l.id === selectedLocId) || locations[0];
     if (!loc) return;
 
     try {
@@ -43,7 +43,7 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
     }
   };
 
-  const getLocationIcon = (type: string) => {
+  const getLocationIcon = (type?: string) => {
     switch (type) {
       case 'rack':
         return 'shelves';
@@ -95,11 +95,12 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
         {/* Locations List */}
         <div className="p-4 overflow-y-auto flex flex-col gap-2.5 max-h-[46vh]">
           {locations.map(loc => {
-            const isSelected = selectedLocId === loc.id;
+            const locKey = loc.code || loc.id || '';
+            const isSelected = selectedLocId === locKey;
             return (
               <label
-                key={loc.id}
-                onClick={() => setSelectedLocId(loc.id)}
+                key={locKey}
+                onClick={() => setSelectedLocId(locKey)}
                 className={`relative flex items-center justify-between p-3.5 rounded-2xl cursor-pointer select-none transition-all active:scale-[0.99] border ${
                   isSelected
                     ? 'bg-blue-50/70 border-blue-300 shadow-[0_4px_16px_rgba(0,74,198,0.1)] ring-1 ring-[#004ac6]/30'

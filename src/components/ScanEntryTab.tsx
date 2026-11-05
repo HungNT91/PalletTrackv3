@@ -85,7 +85,7 @@ export const ScanEntryTab: React.FC<ScanEntryTabProps> = ({
         category: formatted.startsWith('K') ? 'Kiện lưu kho' : 'Thùng hàng',
         priority: 'normal',
         currentLocation: 'Kho WH-01 Sàn bốc',
-        status: 'available',
+        status: 'PENDING',
       });
     } else {
       setValidationError('Sau chữ cái K hoặc T phải là các chữ số (Ví dụ: K01, T01)');

@@ -74,7 +74,7 @@ const INITIAL_PALLETS: Pallet[] = [
     category: 'Điện tử A',
     priority: 'urgent',
     currentLocation: 'Sàn bốc dỡ Gate 01',
-    status: 'in_transit',
+    status: 'PENDING',
     notes: 'Ưu tiên xuất ca sớm, tránh ẩm',
   },
   {
@@ -87,7 +87,7 @@ const INITIAL_PALLETS: Pallet[] = [
     category: 'Vật tư',
     priority: 'normal',
     currentLocation: 'Khu nhập D2',
-    status: 'in_transit',
+    status: 'PENDING',
     notes: 'Chờ định vị vào kệ cao',
   },
   {
@@ -100,7 +100,7 @@ const INITIAL_PALLETS: Pallet[] = [
     category: 'Hàng dễ vỡ',
     priority: 'high',
     currentLocation: 'Sàn bốc dỡ Gate 02',
-    status: 'in_transit',
+    status: 'PENDING',
     notes: 'Hàng dễ vỡ - Xe nâng di chuyển chậm',
   },
   {
@@ -113,7 +113,7 @@ const INITIAL_PALLETS: Pallet[] = [
     category: 'Tiêu chuẩn',
     priority: 'normal',
     currentLocation: 'Cửa bốc dỡ Dock 03',
-    status: 'in_transit',
+    status: 'PENDING',
     notes: 'Chờ phân loại dán tem phụ',
   },
   {
@@ -126,7 +126,7 @@ const INITIAL_PALLETS: Pallet[] = [
     category: 'Điện tử',
     priority: 'normal',
     currentLocation: 'Rack B-02',
-    status: 'stored',
+    status: 'COMPLETED',
     notes: 'Đã kiểm định',
   },
   {
@@ -139,7 +139,7 @@ const INITIAL_PALLETS: Pallet[] = [
     category: 'Điện tử',
     priority: 'urgent',
     currentLocation: 'Tiền soạn 1',
-    status: 'stored',
+    status: 'COMPLETED',
     notes: 'Hàng ưu tiên giao đối tác',
   },
 ];
@@ -152,11 +152,12 @@ const INITIAL_CARDS: TransferCard[] = [
     originLocation: 'Sàn bốc dỡ Gate 01',
     destinationLocation: 'Tiền soạn 1 (TS-01)',
     destinationCode: 'TS-01',
-    status: 'pending',
+    status: 'PENDING',
     statusLabel: 'Chờ Nhập',
     driver: 'Trần Minh',
     priority: 'urgent',
     createdAt: '5 phút trước',
+    completedAt: null,
     notes: 'Lệnh bốc dỡ thời gian thực trạm WH-01',
   },
   {
@@ -166,11 +167,12 @@ const INITIAL_CARDS: TransferCard[] = [
     originLocation: 'Khu nhập D2',
     destinationLocation: 'Rack A-04 (Tầng 2)',
     destinationCode: 'RACK-A04',
-    status: 'pending',
+    status: 'PENDING',
     statusLabel: 'Chờ định vị',
     driver: 'Lê Hữu Hoàng',
     priority: 'normal',
     createdAt: '12 phút trước',
+    completedAt: null,
     notes: 'Cần nâng lên tầng 2 rack A',
   },
   {
@@ -180,11 +182,12 @@ const INITIAL_CARDS: TransferCard[] = [
     originLocation: 'Sàn bốc dỡ Gate 02',
     destinationLocation: 'Tiền soạn 2 (TS-02)',
     destinationCode: 'TS-02',
-    status: 'pending',
+    status: 'PENDING',
     statusLabel: 'Hàng dễ vỡ',
     driver: 'Võ Quốc Anh',
     priority: 'high',
     createdAt: '20 phút trước',
+    completedAt: null,
     notes: 'Cảnh báo hàng dễ vỡ - Đã gán xe nâng 03',
   },
   {
@@ -194,11 +197,12 @@ const INITIAL_CARDS: TransferCard[] = [
     originLocation: 'Cửa bốc dỡ Dock 03',
     destinationLocation: 'Khu đệm nhập (BUFFER-IN)',
     destinationCode: 'BUFFER-IN',
-    status: 'pending',
+    status: 'PENDING',
     statusLabel: 'Chờ xử lý',
     driver: 'Nguyễn Tùng',
     priority: 'normal',
     createdAt: '35 phút trước',
+    completedAt: null,
     notes: 'Chuyển về sàn đệm phân luồng',
   },
   {
@@ -208,7 +212,7 @@ const INITIAL_CARDS: TransferCard[] = [
     originLocation: 'Sàn bốc dỡ Gate 01',
     destinationLocation: 'Rack B-02',
     destinationCode: 'RACK-B02',
-    status: 'completed',
+    status: 'COMPLETED',
     statusLabel: 'Đã hoàn tất',
     driver: 'Trần Minh',
     priority: 'normal',
@@ -224,7 +228,7 @@ const INITIAL_CARDS: TransferCard[] = [
     originLocation: 'Khu đệm nhập',
     destinationLocation: 'Tiền soạn 1 (TS-01)',
     destinationCode: 'TS-01',
-    status: 'completed',
+    status: 'COMPLETED',
     statusLabel: 'Đã hoàn tất',
     driver: 'Lê Hữu Hoàng',
     priority: 'urgent',
@@ -341,9 +345,9 @@ export class WMSStore {
   }
 
   public getStats() {
-    const pendingCards = this.data.cards.filter(c => c.status === 'pending');
-    const completedCards = this.data.cards.filter(c => c.status === 'completed');
-    const totalTonnage = pendingCards.reduce((acc, c) => acc + (c.pallet.weight || 0), 0) / 1000;
+    const pendingCards = this.data.cards.filter(c => c.status === 'PENDING' || (c.status as string) === 'pending');
+    const completedCards = this.data.cards.filter(c => c.status === 'COMPLETED' || (c.status as string) === 'completed');
+    const totalTonnage = pendingCards.reduce((acc, c) => acc + (c.pallet?.weight || 0), 0) / 1000;
 
     return {
       pendingCount: pendingCards.length,
@@ -380,14 +384,15 @@ export class WMSStore {
 
   public getCards(filter?: { status?: string; search?: string; dest?: string }): TransferCard[] {
     let result = this.data.cards.map(c => {
-      if (c.status === 'pending' && (c.statusLabel === 'Chờ xe nâng' || !c.statusLabel)) {
+      if (c.status === 'PENDING' && (c.statusLabel === 'Chờ xe nâng' || !c.statusLabel)) {
         return { ...c, statusLabel: 'Chờ Nhập' };
       }
       return c;
     });
 
     if (filter?.status && filter.status !== 'all') {
-      result = result.filter(c => c.status === filter.status);
+      const target = filter.status.toUpperCase();
+      result = result.filter(c => c.status.toUpperCase() === target);
     }
 
     if (filter?.dest && filter.dest !== 'all') {
@@ -402,9 +407,9 @@ export class WMSStore {
       result = result.filter(c =>
         c.id.toLowerCase().includes(q) ||
         c.palletId.toLowerCase().includes(q) ||
-        c.driver.toLowerCase().includes(q) ||
+        (c.driver && c.driver.toLowerCase().includes(q)) ||
         c.destinationLocation.toLowerCase().includes(q) ||
-        c.statusLabel.toLowerCase().includes(q)
+        (c.statusLabel && c.statusLabel.toLowerCase().includes(q))
       );
     }
 
@@ -418,7 +423,6 @@ export class WMSStore {
   public createCard(cardData: Partial<TransferCard> & { palletId: string; destinationLocation: string }): TransferCard {
     let pallet = this.getPalletById(cardData.palletId);
     if (!pallet) {
-      // create pallet if it doesn't exist
       pallet = {
         id: cardData.palletId,
         name: `Kiện ${cardData.palletId}`,
@@ -429,12 +433,12 @@ export class WMSStore {
         category: cardData.pallet?.category || 'Hàng lưu kho',
         priority: cardData.priority || 'normal',
         currentLocation: 'Sàn bốc dỡ',
-        status: 'in_transit',
+        status: 'PENDING',
         notes: cardData.notes || 'Tạo mới qua máy quét',
       };
       this.addPallet(pallet);
     } else {
-      pallet.status = 'in_transit';
+      pallet.status = 'PENDING';
     }
 
     const cardId = `TX-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -445,18 +449,21 @@ export class WMSStore {
       originLocation: cardData.originLocation || pallet.currentLocation || 'Sàn bốc dỡ WH-01',
       destinationLocation: cardData.destinationLocation,
       destinationCode: cardData.destinationCode || cardData.destinationLocation.split(' ')[0],
-      status: 'pending',
+      status: 'PENDING',
       statusLabel: cardData.statusLabel || (pallet.priority === 'urgent' ? 'Ưu tiên 1' : 'Chờ Nhập'),
       driver: cardData.driver || this.data.shift.operatorName || 'Trần Minh',
       priority: cardData.priority || pallet.priority || 'normal',
       createdAt: 'Vừa xong',
+      created_at: new Date().toISOString(),
+      completedAt: null,
+      completed_at: null,
       notes: cardData.notes || '',
     };
 
     this.data.cards.unshift(newCard);
 
     this.logAudit({
-      action: 'TẠO THẺ ĐIỀU CHUYỂN',
+      action: 'CREATE_TRANSFER_CARD',
       details: `Phát sinh lệnh ${cardId} cho kiện ${pallet.id} điều chuyển tới ${newCard.destinationLocation}`,
       operator: newCard.driver,
       type: 'info',
@@ -487,10 +494,12 @@ export class WMSStore {
           category: 'Hàng nạp file',
           priority: item.notes?.toLowerCase().includes('ưu tiên') ? 'urgent' : 'normal',
           currentLocation: 'Khu bốc dỡ trung tâm',
-          status: 'in_transit',
+          status: 'PENDING',
           notes: item.notes || 'Nhập từ file Excel',
         };
         this.addPallet(pallet);
+      } else {
+        pallet.status = 'PENDING';
       }
 
       const cardId = `TX-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -501,7 +510,9 @@ export class WMSStore {
         originLocation: 'Khu bốc dỡ trung tâm',
         destinationLocation: item.destination,
         destinationCode: item.destination.split(' ')[0],
-        status: 'pending',
+        status: 'PENDING',
+        completedAt: null,
+        completed_at: null,
         statusLabel: pallet.priority === 'urgent' ? 'Ưu tiên 1' : 'Chờ Nhập',
         driver: this.data.shift.operatorName || 'Trần Minh',
         priority: pallet.priority,
@@ -514,7 +525,7 @@ export class WMSStore {
     }
 
     this.logAudit({
-      action: 'NẠP FILE HÀNG LOẠT',
+      action: 'CREATE_TRANSFER_CARD',
       details: `Nạp thành công ${created.length} lệnh điều chuyển từ tệp bảng tính`,
       operator: this.data.shift.operatorName,
       type: 'success',
@@ -528,20 +539,22 @@ export class WMSStore {
     const card = this.data.cards.find(c => c.id === cardId || c.palletId === cardId);
     if (!card) return null;
 
-    card.status = 'completed';
+    const nowIso = new Date().toISOString();
+    card.status = 'COMPLETED';
     card.statusLabel = 'ĐÃ HOÀN TẤT ĐIỀU CHUYỂN';
     card.completedAt = 'Vừa xong';
+    card.completed_at = nowIso;
     card.reconciledBy = operatorName || this.data.shift.operatorName || 'Trần Minh (OP-2048)';
 
     // Update pallet location and status
     const pallet = this.getPalletById(card.palletId);
     if (pallet) {
       pallet.currentLocation = card.destinationLocation;
-      pallet.status = 'stored';
+      pallet.status = 'COMPLETED';
     }
 
     this.logAudit({
-      action: 'ĐỐI SOÁT HOÀN TẤT',
+      action: 'COMPLETE_TRANSFER',
       details: `Đã đối soát QR Pallet ${card.palletId} khớp QR Đích ${card.destinationLocation}. Lệnh ${card.id} đóng.`,
       operator: card.reconciledBy,
       type: 'success',
