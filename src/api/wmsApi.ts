@@ -198,6 +198,10 @@ export const wmsApi = {
           .select()
           .single();
 
+        if (error) {
+          console.error('[Supabase Error] Cập nhật transfer_cards thất bại:', error);
+        }
+
         if (!error && data) {
           return {
             id: data.id,
@@ -444,9 +448,12 @@ export const wmsApi = {
     if (supabase) {
       try {
         // 1. Đảm bảo Pallet đã tồn tại trong bảng pallets
-        await supabase
+        const { error: palletErr } = await supabase
           .from('pallets')
           .upsert({ id: cardData.palletId, status: 'PENDING' }, { onConflict: 'id' });
+        if (palletErr) {
+          console.error('[Supabase Error] Ghi bảng pallets thất bại:', palletErr);
+        }
 
         // 2. Tạo bản ghi mới trong bảng transfer_cards
         const { data, error } = await supabase
@@ -463,6 +470,10 @@ export const wmsApi = {
           })
           .select()
           .single();
+
+        if (error) {
+          console.error('[Supabase Error] Ghi bảng transfer_cards thất bại:', error);
+        }
 
         if (!error && data) {
           // 3. Ghi nhật ký vào bảng audit_logs
@@ -612,6 +623,10 @@ export const wmsApi = {
           .eq('id', cardId)
           .select()
           .single();
+
+        if (error) {
+          console.error('[Supabase Error] Cập nhật transfer_cards thất bại:', error);
+        }
 
         if (!error && data) {
           // 2. Cập nhật pallet sang COMPLETED

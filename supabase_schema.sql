@@ -170,7 +170,19 @@ CREATE INDEX IF NOT EXISTS idx_employees_code
     ON public.employees(code);
 
 -- =========================================================
--- Row Level Security (RLS)
+-- Cap quyen truy cap (GRANT) cho cac role cua Supabase
+-- =========================================================
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+
+-- =========================================================
+-- Row Level Security (RLS) - GIU BAT RLS MA VAN GHI DUOC DU LIEU
 -- =========================================================
 ALTER TABLE public.warehouse_locations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pallets ENABLE ROW LEVEL SECURITY;
@@ -178,12 +190,62 @@ ALTER TABLE public.transfer_cards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.employees ENABLE ROW LEVEL SECURITY;
 
--- Policy cho phep doc/ghi voi Anon Key
-CREATE POLICY "Allow public read-write warehouse_locations" ON public.warehouse_locations FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public read-write pallets" ON public.pallets FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public read-write transfer_cards" ON public.transfer_cards FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public read-write audit_logs" ON public.audit_logs FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow public read-write employees" ON public.employees FOR ALL USING (true) WITH CHECK (true);
+-- Xoa cac policy cu neu co de tranh xung dot
+DROP POLICY IF EXISTS "warehouse_locations_select" ON public.warehouse_locations;
+DROP POLICY IF EXISTS "warehouse_locations_insert" ON public.warehouse_locations;
+DROP POLICY IF EXISTS "warehouse_locations_update" ON public.warehouse_locations;
+DROP POLICY IF EXISTS "warehouse_locations_delete" ON public.warehouse_locations;
+DROP POLICY IF EXISTS "Allow public read-write warehouse_locations" ON public.warehouse_locations;
+
+DROP POLICY IF EXISTS "pallets_select" ON public.pallets;
+DROP POLICY IF EXISTS "pallets_insert" ON public.pallets;
+DROP POLICY IF EXISTS "pallets_update" ON public.pallets;
+DROP POLICY IF EXISTS "pallets_delete" ON public.pallets;
+DROP POLICY IF EXISTS "Allow public read-write pallets" ON public.pallets;
+
+DROP POLICY IF EXISTS "transfer_cards_select" ON public.transfer_cards;
+DROP POLICY IF EXISTS "transfer_cards_insert" ON public.transfer_cards;
+DROP POLICY IF EXISTS "transfer_cards_update" ON public.transfer_cards;
+DROP POLICY IF EXISTS "transfer_cards_delete" ON public.transfer_cards;
+DROP POLICY IF EXISTS "Allow public read-write transfer_cards" ON public.transfer_cards;
+
+DROP POLICY IF EXISTS "audit_logs_select" ON public.audit_logs;
+DROP POLICY IF EXISTS "audit_logs_insert" ON public.audit_logs;
+DROP POLICY IF EXISTS "audit_logs_update" ON public.audit_logs;
+DROP POLICY IF EXISTS "Allow public read-write audit_logs" ON public.audit_logs;
+
+DROP POLICY IF EXISTS "employees_select" ON public.employees;
+DROP POLICY IF EXISTS "employees_insert" ON public.employees;
+DROP POLICY IF EXISTS "employees_update" ON public.employees;
+DROP POLICY IF EXISTS "Allow public read-write employees" ON public.employees;
+
+-- 1. Bảng warehouse_locations
+CREATE POLICY "warehouse_locations_select" ON public.warehouse_locations FOR SELECT TO anon, authenticated, service_role USING (true);
+CREATE POLICY "warehouse_locations_insert" ON public.warehouse_locations FOR INSERT TO anon, authenticated, service_role WITH CHECK (true);
+CREATE POLICY "warehouse_locations_update" ON public.warehouse_locations FOR UPDATE TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "warehouse_locations_delete" ON public.warehouse_locations FOR DELETE TO anon, authenticated, service_role USING (true);
+
+-- 2. Bảng pallets (Cho phep ca SELECT, INSERT, UPDATE de lenh upsert hoat dong)
+CREATE POLICY "pallets_select" ON public.pallets FOR SELECT TO anon, authenticated, service_role USING (true);
+CREATE POLICY "pallets_insert" ON public.pallets FOR INSERT TO anon, authenticated, service_role WITH CHECK (true);
+CREATE POLICY "pallets_update" ON public.pallets FOR UPDATE TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "pallets_delete" ON public.pallets FOR DELETE TO anon, authenticated, service_role USING (true);
+
+-- 3. Bảng transfer_cards (Cho phep tao the va cap nhat doi soat)
+CREATE POLICY "transfer_cards_select" ON public.transfer_cards FOR SELECT TO anon, authenticated, service_role USING (true);
+CREATE POLICY "transfer_cards_insert" ON public.transfer_cards FOR INSERT TO anon, authenticated, service_role WITH CHECK (true);
+CREATE POLICY "transfer_cards_update" ON public.transfer_cards FOR UPDATE TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+CREATE POLICY "transfer_cards_delete" ON public.transfer_cards FOR DELETE TO anon, authenticated, service_role USING (true);
+
+-- 4. Bảng audit_logs (Ghi log va doc log)
+CREATE POLICY "audit_logs_select" ON public.audit_logs FOR SELECT TO anon, authenticated, service_role USING (true);
+CREATE POLICY "audit_logs_insert" ON public.audit_logs FOR INSERT TO anon, authenticated, service_role WITH CHECK (true);
+CREATE POLICY "audit_logs_update" ON public.audit_logs FOR UPDATE TO anon, authenticated, service_role USING (true) WITH CHECK (true);
+
+-- 5. Bảng employees (Dang nhap nhan vien)
+CREATE POLICY "employees_select" ON public.employees FOR SELECT TO anon, authenticated, service_role USING (true);
+CREATE POLICY "employees_insert" ON public.employees FOR INSERT TO anon, authenticated, service_role WITH CHECK (true);
+CREATE POLICY "employees_update" ON public.employees FOR UPDATE TO anon, authenticated, service_role USING (true) WITH CHECK (true);
 
 -- =========================================================
 -- Du lieu mau ban dau (Seed Data)
