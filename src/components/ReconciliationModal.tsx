@@ -23,26 +23,24 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
   const [palletQrUrl, setPalletQrUrl] = useState<string>('');
   const [destQrUrl, setDestQrUrl] = useState<string>('');
 
-  // Extract destination name and standard code format
+  // Lấy thông tin hiển thị điểm đến từ dữ liệu thẻ điều chuyển
   const getDestinationDisplay = (c: TransferCard) => {
-    const rawName = c.destinationLocation || 'Rack Thường';
-    // Clean name if previously stored with parens e.g. "Rack A-04 (RACK-A04)"
+    const rawName = c.destinationLocation || 'Vị trí kho';
+    // Làm sạch tên nếu trước đây lưu kèm ngoặc đơn, vd: "Rack A-04 (RACK-A04)"
     const name = rawName.includes('(') ? rawName.split('(')[0].trim() : rawName;
 
-    let code = c.destinationCode;
-    if (!code || code === 'RACK-A04' || name.toLowerCase().includes('rack')) {
-      code = '80001010_Z1_D2_C1_T2_H1';
-    }
+    // Ưu tiên lấy destinationCode trực tiếp từ DB — không fallback sang mã cứng
+    const code = c.destinationCode || '';
 
     return {
-      name: name.toLowerCase().includes('rack') ? 'Rack Thường' : name,
-      code: code || '80001010_Z1_D2_C1_T2_H1',
+      name,
+      code,
     };
   };
 
   const { name: destinationName, code: destinationCode } = card
     ? getDestinationDisplay(card)
-    : { name: 'Rack Thường', code: '80001010_Z1_D2_C1_T2_H1' };
+    : { name: 'Vị trí kho', code: '' };
 
   useEffect(() => {
     if (!isOpen || !card) {
