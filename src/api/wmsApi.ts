@@ -68,6 +68,16 @@ function computeLocalStats(store: LocalStoreData): WMSStats {
   };
 }
 
+let cardSeqCounter = 0;
+function generateTransferCardId(): string {
+  cardSeqCounter = (cardSeqCounter + 1) % 10000;
+  const now = new Date();
+  const dateStr = now.toISOString().slice(2, 10).replace(/-/g, ''); // e.g. 261106
+  const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, ''); // e.g. 161825
+  const seqStr = cardSeqCounter.toString().padStart(4, '0');
+  return `TX-${dateStr}-${timeStr}-${seqStr}`;
+}
+
 export const wmsApi = {
   // 1. Thống kê tổng quan kho
   async getStats(): Promise<WMSStats> {
@@ -400,8 +410,9 @@ export const wmsApi = {
     priority?: 'urgent' | 'high' | 'normal';
     notes?: string;
     pallet?: Partial<Pallet>;
+    id?: string;
   }): Promise<TransferCard> {
-    const cardId = `TX-${Math.floor(9000 + Math.random() * 1000)}`;
+    let cardId = cardData.id || generateTransferCardId();
     const driver = cardData.driver || 'Trần Minh';
 
     if (supabase) {
@@ -428,54 +439,72 @@ export const wmsApi = {
           }
         }
 
-        // 2. Tạo bản ghi mới trong bảng transfer_cards
-        const { data, error } = await supabase
-          .from('transfer_cards')
-          .insert({
-            id: cardId,
-            pallet_id: cardData.palletId,
-            destination_location: cardData.destinationLocation,
-            destination_code: cardData.destinationCode,
-            status: 'PENDING',
-            driver,
-            notes: cardData.notes || null,
-            completed_at: null,
-          })
-          .select()
-          .single();
+        // 2. Tạo bản ghi mới trong bảng transfer_cards (tự động thử lại nếu trùng ID pkey 23505)
+        let insertData: any = null;
+        let lastError: any = null;
 
-        if (error) {
-          console.error('[Supabase Error] Ghi bảng transfer_cards thất bại:', error);
-          throw new Error(`[Supabase Transfer Card Error] ${error.message} (code: ${error.code})`);
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const { data, error } = await supabase
+            .from('transfer_cards')
+            .insert({
+              id: cardId,
+              pallet_id: cardData.palletId,
+              destination_location: cardData.destinationLocation,
+              destination_code: cardData.destinationCode,
+              status: 'PENDING',
+              driver,
+              notes: cardData.notes || null,
+              completed_at: null,
+            })
+            .select()
+            .single();
+
+          if (!error && data) {
+            insertData = data;
+            break;
+          }
+
+          lastError = error;
+          if (error && error.code === '23505') {
+            // Trùng khóa chính -> sinh mã thẻ mới và thử lại
+            cardId = generateTransferCardId();
+            continue;
+          }
+          break;
         }
 
-        if (data) {
+        if (lastError && !insertData) {
+          console.error('[Supabase Error] Ghi bảng transfer_cards thất bại:', lastError);
+          throw new Error(`[Supabase Transfer Card Error] ${lastError.message} (code: ${lastError.code})`);
+        }
+
+        if (insertData) {
           // 3. Ghi nhật ký vào bảng audit_logs
           await supabase.from('audit_logs').insert({
-            transfer_card_id: cardId,
+            transfer_card_id: insertData.id,
             action: 'CREATE_TRANSFER_CARD',
             operator: driver,
           });
 
           return {
-            id: data.id,
-            palletId: data.pallet_id,
-            pallet_id: data.pallet_id,
-            destinationLocation: data.destination_location,
-            destination_location: data.destination_location,
-            destinationCode: data.destination_code,
-            destination_code: data.destination_code,
+            id: insertData.id,
+            palletId: insertData.pallet_id,
+            pallet_id: insertData.pallet_id,
+            destinationLocation: insertData.destination_location,
+            destination_location: insertData.destination_location,
+            destinationCode: insertData.destination_code,
+            destination_code: insertData.destination_code,
             originLocation: cardData.originLocation || 'Sàn bốc dỡ',
             origin_location: cardData.originLocation || 'Sàn bốc dỡ',
             status: 'PENDING',
             statusLabel: 'Chờ Nhập',
-            driver: data.driver || driver,
+            driver: insertData.driver || driver,
             priority: cardData.priority || 'normal',
             createdAt: 'Vừa xong',
-            created_at: data.created_at,
+            created_at: insertData.created_at,
             completedAt: null,
             completed_at: null,
-            notes: data.notes || '',
+            notes: insertData.notes || '',
           };
         }
       } catch (err: any) {
