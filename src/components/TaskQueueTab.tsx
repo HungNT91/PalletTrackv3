@@ -25,6 +25,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
     { id: 'Tiền soạn 2 - Kho 1', label: 'Tiền soạn 2 - Kho 1', color: 'bg-emerald-500' },
     { id: 'Tiền soạn 1 - Kho 2', label: 'Tiền soạn 1 - Kho 2', color: 'bg-emerald-500' },
     { id: 'Tiền soạn 2 - Kho 2', label: 'Tiền soạn 2 - Kho 2', color: 'bg-emerald-500' },
+    { id: 'Tiền soạn 1 - Kho 1 - T4', label: 'Tiền soạn 1 - Kho 1 - T4', color: 'bg-emerald-500' },
     { id: 'Kho Khuyến Mãi', label: 'Kho Khuyến Mãi', color: 'bg-emerald-500' },
     { id: 'Rack Thường', label: 'Rack Thường', color: 'bg-blue-500' },
     { id: 'Rack Cắt Liều', label: 'Rack Cắt Liều', color: 'bg-blue-500' },
