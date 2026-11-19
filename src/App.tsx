@@ -282,8 +282,14 @@ export default function App() {
     }
   };
 
-  // Get current card for the dedicated "Chi tiết thẻ" tab
-  const pendingCards = cards.filter(c => c.status === 'PENDING');
+  // Lấy thẻ đang chờ ưu tiên theo quy tắc FIFO (thẻ cũ nhất tạo trước xử lý trước)
+  const pendingCards = cards
+    .filter(c => c.status === 'PENDING')
+    .sort((a, b) => {
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return timeA - timeB;
+    });
   const primaryPendingCard = pendingCards[0] || cards[0] || null;
 
   // If operator is not logged in, show dedicated LoginScreen
