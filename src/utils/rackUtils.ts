@@ -5,7 +5,7 @@
  *    - Dán Tem, Kho Tạm, Tiền Soạn 1, Tiền Soạn 2, Kho Khuyến Mãi
  *    - RACK THƯỜNG (80001010_Z1_R1_D2_C1_T2_H1)
  *    - RACK CẮT LIỀU (80001030_Z1_R1_D1_C1_T2_H1)
- * 2. 6.241 vị trí hộc giá kệ chi tiết (Hộc Rack)
+ * 2. 6.241 vị trí toạ độ hộc giá kệ chi tiết (Hộc Rack)
  */
 
 /**
@@ -24,8 +24,8 @@ export const MASTER_LOCATION_CODES = [
   '80001020_Z1_R1_D1_C1_T1_H5', // Kho Khuyến Mãi
   '80001030_Z2_R1_D1_C10_T1_H1', // Tiền Soạn 1 - Kho 2 - CL
   '80001030_Z3_R1_D17_C2_T1_H1', // Tiền Soạn 2  - Kho 2 - CL
-  '80001010_Z1_R1_D2_C1_T2_H1', // Rack Thường (Vị trí tổng cố định)
-  '80001030_Z1_R1_D1_C1_T2_H1', // Rack Cắt Liều (Vị trí tổng cố định)
+  '80001010_Z1_R1_D2_C1_T2_H1', // Rack Thường (Vị trí tổng cố định - KHÔNG phải hộc rack)
+  '80001030_Z1_R1_D1_C1_T2_H1', // Rack Cắt Liều (Vị trí tổng cố định - KHÔNG phải hộc rack)
   'RACK-01',
   'RACK-02',
   'TS-01',
@@ -33,30 +33,17 @@ export const MASTER_LOCATION_CODES = [
 ];
 
 /**
- * Danh sách tên các vị trí tổng cố định KHÔNG PHẢI là hộc rack
+ * Xóa dấu tiếng Việt và chuẩn hóa chữ thường để so sánh an toàn mọi bảng mã (NFC / NFD)
  */
-const NON_RACK_NAME_KEYWORDS = [
-  'rack thường',
-  'rack thuong',
-  'rack cắt liều',
-  'rack cat lieu',
-  'dán tem',
-  'dan tem',
-  'kho tạm',
-  'kho tam',
-  'tiền soạn',
-  'tien soan',
-  'kho khuyến mãi',
-  'khuyến mãi',
-  'khuyen mai',
-  'khu đệm',
-  'khu dem',
-  'buffer',
-  'sàn bốc dỡ',
-  'san boc do',
-  'staging',
-  'outbound',
-];
+const removeVietnameseTones = (str: string): string => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+};
 
 /**
  * Kiểm tra xem một vị trí có phải là Hộc Rack hay không.
@@ -65,14 +52,27 @@ const NON_RACK_NAME_KEYWORDS = [
  * @param locationName Tên vị trí
  */
 export const isRackSlotCode = (code?: string | null, locationName?: string | null): boolean => {
-  // 1. Nếu tên vị trí thuộc danh sách vị trí tổng cố định (kể cả Rack Thường & Rack Cắt Liều) => KHÔNG phải Hộc Rack
+  // 1. Kiểm tra theo tên vị trí:
   if (locationName) {
-    const locLower = locationName.trim().toLowerCase();
-    if (NON_RACK_NAME_KEYWORDS.some(kw => locLower.includes(kw))) {
+    const locClean = removeVietnameseTones(locationName);
+    // Tuyệt đối loại trừ các vị trí tổng cố định:
+    if (
+      locClean.includes('rack thuong') ||
+      locClean.includes('rack cat lieu') ||
+      locClean.includes('dan tem') ||
+      locClean.includes('kho tam') ||
+      locClean.includes('tien soan') ||
+      locClean.includes('khuyen mai') ||
+      locClean.includes('khu dem') ||
+      locClean.includes('buffer') ||
+      locClean.includes('san boc do') ||
+      locClean.includes('staging') ||
+      locClean.includes('outbound')
+    ) {
       return false;
     }
     // Nếu tên vị trí ghi rõ là "Hộc Rack" => Là Hộc Rack
-    if (locLower === 'hộc rack' || locLower === 'hoc rack') {
+    if (locClean === 'hoc rack') {
       return true;
     }
   }
@@ -80,12 +80,18 @@ export const isRackSlotCode = (code?: string | null, locationName?: string | nul
   if (!code) return false;
   const cleanCode = code.trim().toUpperCase();
 
-  // 2. Nếu mã vị trí trùng với các mã vị trí tổng cố định trong DB => KHÔNG phải Hộc Rack
-  if (MASTER_LOCATION_CODES.includes(cleanCode)) {
+  // 2. Tuyệt đối loại trừ theo mã của các vị trí tổng cố định trong DB:
+  if (
+    cleanCode === '80001010_Z1_R1_D2_C1_T2_H1' || // Mã Rack Thường
+    cleanCode === '80001030_Z1_R1_D1_C1_T2_H1' || // Mã Rack Cắt Liều
+    cleanCode === 'RACK-01' ||
+    cleanCode === 'RACK-02' ||
+    MASTER_LOCATION_CODES.includes(cleanCode)
+  ) {
     return false;
   }
 
-  // 3. Loại trừ các mã kho đặc biệt:
+  // 3. Loại trừ các mã kho chức năng:
   // - 80001001: Dán Tem
   // - 80001020: Kho Khuyến Mãi
   if (cleanCode.startsWith('80001001') || cleanCode.startsWith('80001020')) {
@@ -102,26 +108,26 @@ export const isRackSlotCode = (code?: string | null, locationName?: string | nul
     return false;
   }
 
-  // 6. Khớp chính xác các toạ độ thuộc 6.241 vị trí hộc giá kệ:
-  // - Nhóm 1: Kho 80001030, Zone 1, Dãy 1 (Rack Cắt Liều - từ tầng T3 trở lên hoặc các hộc lẻ)
+  // 6. Nhận diện các toạ độ hộc giá kệ chi tiết (6.241 vị trí):
+  // - Nhóm 1: Kho 80001030, Zone 1, Dãy 1 (Rack Cắt Liều - hộc lẻ)
   const isRackCatLieuSlot =
     cleanCode.startsWith('80001030') &&
     cleanCode.includes('_Z1_') &&
     cleanCode.includes('_D1_') &&
     /_T\d+_H\d+/i.test(cleanCode) &&
-    cleanCode !== '80001030_Z1_R1_D1_C1_T2_H1'; // Trừ mã tổng Rack Cắt Liều
+    cleanCode !== '80001030_Z1_R1_D1_C1_T2_H1';
 
   if (isRackCatLieuSlot) {
     return true;
   }
 
-  // - Nhóm 2: Kho 80001010, Zone 1, Dãy D2 đến D9 (Rack Thường - các hộc lẻ)
+  // - Nhóm 2: Kho 80001010, Zone 1, Dãy D2 đến D9 (Rack Thường - hộc lẻ)
   const isRackThuongSlot =
     cleanCode.startsWith('80001010') &&
     cleanCode.includes('_Z1_') &&
     /_D[2-9]_/.test(cleanCode) &&
     /_T\d+_H\d+/i.test(cleanCode) &&
-    cleanCode !== '80001010_Z1_R1_D2_C1_T2_H1'; // Trừ mã tổng Rack Thường
+    cleanCode !== '80001010_Z1_R1_D2_C1_T2_H1';
 
   if (isRackThuongSlot) {
     return true;
