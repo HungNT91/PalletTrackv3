@@ -111,19 +111,19 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
       if (!matchChip) {
         const destLoc = (card.destinationLocation || '').toLowerCase();
         const destCode = (card.destinationCode || '').toLowerCase();
-        const isSlot = isRackSlotCode(card.destinationCode);
+        const isSlot = isRackSlotCode(card.destinationCode, card.destinationLocation);
 
         if (selectedFilter === 'Hộc Rack') {
-          // Lọc toàn bộ 6.241 thẻ điều chuyển về hộc rack hoặc vị trí có từ khoá Rack
-          matchChip = isSlot || destLoc.includes('hộc rack') || destLoc.includes('rack');
+          // Lọc chính xác các thẻ điều chuyển về hộc rack
+          matchChip = isSlot;
         } else if (selectedFilter === 'Rack Thường') {
           matchChip =
             destLoc.includes('rack thường') ||
-            (isSlot && getRackCategoryName(card.destinationCode) === 'Rack Thường');
+            (isSlot && getRackCategoryName(card.destinationCode, card.destinationLocation) === 'Rack Thường');
         } else if (selectedFilter === 'Rack Cắt Liều') {
           matchChip =
             destLoc.includes('rack cắt liều') ||
-            (isSlot && getRackCategoryName(card.destinationCode) === 'Rack Cắt Liều');
+            (isSlot && getRackCategoryName(card.destinationCode, card.destinationLocation) === 'Rack Cắt Liều');
         } else {
           matchChip =
             destLoc.includes(selectedFilter.toLowerCase()) ||
@@ -453,7 +453,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                     <div className="min-w-0">
                       <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider flex items-center gap-1.5">
                         <span>Vị trí đích</span>
-                        {isRackSlotCode(card.destinationCode) && (
+                        {isRackSlotCode(card.destinationCode, card.destinationLocation) && (
                           <span className="px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 text-[9px] font-bold">
                             Hộc Rack
                           </span>
@@ -461,7 +461,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                       </div>
                       <div className="text-xs font-bold text-slate-800 truncate" title={card.destinationCode ? `${card.destinationLocation} (${card.destinationCode})` : card.destinationLocation}>
                         <span>{card.destinationLocation}</span>
-                        {isRackSlotCode(card.destinationCode) && (
+                        {isRackSlotCode(card.destinationCode, card.destinationLocation) && (
                           <span className="font-code-md text-[11px] font-semibold text-indigo-700 ml-1.5">
                             • {card.destinationCode}
                           </span>

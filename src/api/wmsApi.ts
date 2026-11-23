@@ -429,7 +429,7 @@ export const wmsApi = {
 
         // 1.1 Tự động bổ sung destination_code vào warehouse_locations (chỉ đối với khu vực chung)
         // Không tự động thêm 6.241 hộc rack chi tiết vào warehouse_locations để tránh phình to database
-        const isRackSlot = isRackSlotCode(cardData.destinationCode);
+        const isRackSlot = isRackSlotCode(cardData.destinationCode, cardData.destinationLocation);
         if (cardData.destinationCode && !isRackSlot) {
           const { error: locErr } = await supabase
             .from('warehouse_locations')
@@ -595,7 +595,7 @@ export const wmsApi = {
     const createdList: TransferCard[] = [];
 
     for (const item of items) {
-      const isSlot = isRackSlotCode(item.destinationCode || item.destination);
+      const isSlot = isRackSlotCode(item.destinationCode || item.destination, item.destination);
       let destCode = item.destinationCode;
       let destName = item.destination;
 
@@ -603,7 +603,7 @@ export const wmsApi = {
         destCode = item.destinationCode || item.destination;
         destName = item.destination && item.destination !== destCode
           ? item.destination
-          : getRackCategoryName(destCode);
+          : getRackCategoryName(destCode, item.destination);
       } else {
         const loc =
           locations.find(
