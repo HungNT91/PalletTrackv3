@@ -51,16 +51,14 @@ export const Header: React.FC<HeaderProps> = ({
                   PalletTrack
                 </span>
                 <span className="px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded bg-blue-50 border border-blue-200/80 text-[#004ac6] font-code-md text-[9px] sm:text-[10px] uppercase font-bold tracking-wider">
-                  WH-01
+                  V3.0
                 </span>
               </div>
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse flex-shrink-0 ${
-                  isSupabaseConfigured ? 'bg-emerald-500' : 'bg-amber-500'
-                }`}></span>
-                <span className={`text-[10px] sm:text-[11px] truncate font-semibold uppercase tracking-wider ${
-                  isSupabaseConfigured ? 'text-emerald-700' : 'text-amber-700'
-                }`}>
+                <span className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse flex-shrink-0 ${isSupabaseConfigured ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`}></span>
+                <span className={`text-[10px] sm:text-[11px] truncate font-semibold uppercase tracking-wider ${isSupabaseConfigured ? 'text-emerald-700' : 'text-amber-700'
+                  }`}>
                   {isSupabaseConfigured ? `Supabase Live • ${shift?.pingMs || 12}ms` : 'LocalStorage Mode'}
                 </span>
               </div>
@@ -88,11 +86,10 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               aria-label="Bật tắt đèn pin"
               onClick={toggleFlashlight}
-              className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl transition-all border shadow-sm ${
-                flashlightOn
+              className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl transition-all border shadow-sm ${flashlightOn
                   ? 'bg-amber-400 text-slate-900 border-amber-500 shadow-md ring-2 ring-amber-300'
                   : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200/70'
-              }`}
+                }`}
             >
               <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
                 {flashlightOn ? 'flashlight_off' : 'flashlight_on'}

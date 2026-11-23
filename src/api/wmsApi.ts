@@ -8,6 +8,7 @@ import {
   INITIAL_EMPLOYEES,
 } from '../data/initialData';
 import { supabase } from '../lib/supabase';
+import { isRackSlotCode, getRackCategoryName } from '../utils/rackUtils';
 
 const CLIENT_STORAGE_KEY = 'pallettrack_wms_client_store';
 
@@ -426,8 +427,10 @@ export const wmsApi = {
           throw new Error(`[Supabase Pallet Error] ${palletErr.message} (code: ${palletErr.code})`);
         }
 
-        // 1.1 Tự động bổ sung destination_code vào warehouse_locations để không vi phạm khóa ngoại FK
-        if (cardData.destinationCode) {
+        // 1.1 Tự động bổ sung destination_code vào warehouse_locations (chỉ đối với khu vực chung)
+        // Không tự động thêm 6.241 hộc rack chi tiết vào warehouse_locations để tránh phình to database
+        const isRackSlot = isRackSlotCode(cardData.destinationCode);
+        if (cardData.destinationCode && !isRackSlot) {
           const { error: locErr } = await supabase
             .from('warehouse_locations')
             .upsert({
@@ -469,6 +472,11 @@ export const wmsApi = {
             // Trùng khóa chính -> sinh mã thẻ mới và thử lại
             cardId = generateTransferCardId();
             continue;
+          }
+          if (error && error.code === '23503') {
+            // Vi phạm khóa ngoại FK transfer_cards_destination_code_fkey
+            console.error('[Supabase FK Error] destination_code chưa được bỏ ràng buộc khóa ngoại:', error);
+            throw new Error(`[Supabase FK Error] Mã vị trí "${cardData.destinationCode}" chưa tồn tại trong danh mục. Hãy thực thi lệnh SQL: "ALTER TABLE public.transfer_cards DROP CONSTRAINT IF EXISTS transfer_cards_destination_code_fkey;" trên Supabase để cho phép nhập 6.241 hộc rack trực tiếp.`);
           }
           break;
         }
@@ -587,18 +595,29 @@ export const wmsApi = {
     const createdList: TransferCard[] = [];
 
     for (const item of items) {
-      const loc =
-        locations.find(
-          l =>
-            (item.destinationCode && l.code.toUpperCase() === item.destinationCode.toUpperCase()) ||
-            l.code.toUpperCase() === item.destination.toUpperCase() ||
-            l.name.toLowerCase().includes(item.destination.toLowerCase())
-        );
+      const isSlot = isRackSlotCode(item.destinationCode || item.destination);
+      let destCode = item.destinationCode;
+      let destName = item.destination;
 
-      const destCode =
-        item.destinationCode ||
-        (loc ? loc.code : item.destination.includes('-') ? item.destination : 'TS-01');
-      const destName = loc ? loc.name : item.destination;
+      if (isSlot) {
+        destCode = item.destinationCode || item.destination;
+        destName = item.destination && item.destination !== destCode
+          ? item.destination
+          : getRackCategoryName(destCode);
+      } else {
+        const loc =
+          locations.find(
+            l =>
+              (item.destinationCode && l.code.toUpperCase() === item.destinationCode.toUpperCase()) ||
+              l.code.toUpperCase() === item.destination.toUpperCase() ||
+              l.name.toLowerCase().includes(item.destination.toLowerCase())
+          );
+
+        destCode =
+          item.destinationCode ||
+          (loc ? loc.code : item.destination.includes('-') ? item.destination : 'TS-01');
+        destName = loc ? loc.name : item.destination;
+      }
 
       const card = await this.createCard({
         palletId: item.palletId,

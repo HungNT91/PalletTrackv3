@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { TransferCard, WMSStats } from '../types';
+import { isRackSlotCode, getRackCategoryName } from '../utils/rackUtils';
 
 interface TaskQueueTabProps {
   cards: TransferCard[];
@@ -21,14 +22,16 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
   // Filter chips options
   const filterChips = [
     { id: 'all', label: 'Tất cả', icon: 'apps' },
+    { id: 'Hộc Rack', label: 'Hộc Rack', color: 'bg-indigo-500' },
+    { id: 'Rack Thường', label: 'Rack Thường', color: 'bg-blue-500' },
+    { id: 'Rack Cắt Liều', label: 'Rack Cắt Liều', color: 'bg-blue-500' },
     { id: 'Tiền soạn 1 - Kho 1', label: 'Tiền soạn 1 - Kho 1', color: 'bg-amber-500' },
     { id: 'Tiền soạn 2 - Kho 1', label: 'Tiền soạn 2 - Kho 1', color: 'bg-emerald-500' },
     { id: 'Tiền soạn 1 - Kho 2', label: 'Tiền soạn 1 - Kho 2', color: 'bg-emerald-500' },
     { id: 'Tiền soạn 2 - Kho 2', label: 'Tiền soạn 2 - Kho 2', color: 'bg-emerald-500' },
     { id: 'Tiền soạn 1 - Kho 1 - T4', label: 'Tiền soạn 1 - Kho 1 - T4', color: 'bg-emerald-500' },
     { id: 'Kho Khuyến Mãi', label: 'Kho Khuyến Mãi', color: 'bg-emerald-500' },
-    { id: 'Rack Thường', label: 'Rack Thường', color: 'bg-blue-500' },
-    { id: 'Rack Cắt Liều', label: 'Rack Cắt Liều', color: 'bg-blue-500' },
+    { id: 'Kho Tạm', label: 'Kho Tạm', color: 'bg-blue-500' },
     { id: 'Dán Tem', label: 'Dán Tem', color: 'bg-blue-500' },
   ];
 
@@ -101,12 +104,32 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
         card.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         card.palletId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (card.driver && card.driver.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        card.destinationLocation.toLowerCase().includes(searchQuery.toLowerCase());
+        card.destinationLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (card.destinationCode && card.destinationCode.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const matchChip =
-        selectedFilter === 'all' ||
-        card.destinationLocation.toLowerCase().includes(selectedFilter.toLowerCase()) ||
-        card.destinationCode.toLowerCase().includes(selectedFilter.toLowerCase());
+      let matchChip = selectedFilter === 'all';
+      if (!matchChip) {
+        const destLoc = (card.destinationLocation || '').toLowerCase();
+        const destCode = (card.destinationCode || '').toLowerCase();
+        const isSlot = isRackSlotCode(card.destinationCode);
+
+        if (selectedFilter === 'Hộc Rack') {
+          // Lọc toàn bộ 6.241 thẻ điều chuyển về hộc rack hoặc vị trí có từ khoá Rack
+          matchChip = isSlot || destLoc.includes('hộc rack') || destLoc.includes('rack');
+        } else if (selectedFilter === 'Rack Thường') {
+          matchChip =
+            destLoc.includes('rack thường') ||
+            (isSlot && getRackCategoryName(card.destinationCode) === 'Rack Thường');
+        } else if (selectedFilter === 'Rack Cắt Liều') {
+          matchChip =
+            destLoc.includes('rack cắt liều') ||
+            (isSlot && getRackCategoryName(card.destinationCode) === 'Rack Cắt Liều');
+        } else {
+          matchChip =
+            destLoc.includes(selectedFilter.toLowerCase()) ||
+            destCode.includes(selectedFilter.toLowerCase());
+        }
+      }
 
       return matchSearch && matchChip;
     });
@@ -346,8 +369,8 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                   className={`absolute left-0 top-0 bottom-0 w-1.5 ${isDone
                     ? 'bg-emerald-500'
                     : isOverduePending
-                    ? 'bg-rose-500'
-                    : getBorderColor(card)
+                      ? 'bg-rose-500'
+                      : getBorderColor(card)
                     }`}
                 />
 
@@ -399,16 +422,16 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                       className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border ${isDone
                         ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                         : isOverduePending
-                        ? 'bg-rose-100 text-rose-900 border-rose-300 font-bold'
-                        : 'bg-amber-50 text-amber-800 border-amber-200'
+                          ? 'bg-rose-100 text-rose-900 border-rose-300 font-bold'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
                         }`}
                     >
                       <span
                         className={`w-1.5 h-1.5 rounded-full ${isDone
                           ? 'bg-emerald-500'
                           : isOverduePending
-                          ? 'bg-rose-600 animate-pulse'
-                          : 'bg-amber-500'
+                            ? 'bg-rose-600 animate-pulse'
+                            : 'bg-amber-500'
                           }`}
                       ></span>
                       {isDone ? 'Đã hoàn tất' : isOverduePending ? 'Ưu tiên FIFO' : 'Chờ Nhập'}
@@ -428,11 +451,21 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                       </span>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider">
-                        Vị trí đích
+                      <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider flex items-center gap-1.5">
+                        <span>Vị trí đích</span>
+                        {isRackSlotCode(card.destinationCode) && (
+                          <span className="px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 text-[9px] font-bold">
+                            Hộc Rack
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs font-bold text-slate-800 truncate">
-                        {card.destinationLocation}
+                      <div className="text-xs font-bold text-slate-800 truncate" title={card.destinationCode ? `${card.destinationLocation} (${card.destinationCode})` : card.destinationLocation}>
+                        <span>{card.destinationLocation}</span>
+                        {isRackSlotCode(card.destinationCode) && (
+                          <span className="font-code-md text-[11px] font-semibold text-indigo-700 ml-1.5">
+                            • {card.destinationCode}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -461,8 +494,8 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                     className={`h-8 sm:h-9 px-2.5 sm:px-3.5 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all flex-shrink-0 ${isDone
                       ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                       : isOverduePending
-                      ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-200'
-                      : 'bg-[#004ac6] hover:bg-blue-700 text-white'
+                        ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-200'
+                        : 'bg-[#004ac6] hover:bg-blue-700 text-white'
                       }`}
                   >
                     <span className="material-symbols-outlined text-[15px] sm:text-[17px]">

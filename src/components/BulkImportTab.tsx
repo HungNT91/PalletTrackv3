@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { WarehouseLocation } from '../types';
+import { isRackSlotCode, getRackCategoryName } from '../utils/rackUtils';
 
 export interface ImportItem {
   palletId: string;
@@ -9,6 +10,7 @@ export interface ImportItem {
   notes?: string;
   isValid: boolean;
   errorReason?: string;
+  isRackSlot?: boolean;
 }
 
 interface BulkImportTabProps {
@@ -40,11 +42,11 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
     const csvHeader = 'Mã Pallet,Mã Vị Trí Đích,Tên Vị Trí Đích,Tài Xế,Ghi Chú\r\n';
     const sampleRows = [
       'K01,TS-01,Khu trung chuyển TS-01,Trần Minh,Lô hàng ưu tiên ca sáng',
-      'K02,RK-01,Kệ hàng Zone A - RK01,Lê Hữu Hoàng,Chờ xe nâng xếp kệ cao',
-      'T01,TS-02,Khu trung chuyển TS-02,Võ Quốc Anh,Kiện hàng linh kiện điện tử',
+      'K02,80001010_Z1_R1_D2_C1_T3_H1,Rack Thường,Lê Hữu Hoàng,Chờ xe nâng xếp hộc tầng 3',
+      'T01,80001030_Z1_R1_D1_C1_T3_H1,Rack Cắt Liều,Võ Quốc Anh,Hàng chia liều hộc tầng 3',
       'T02,BF-01,Đệm xuất hàng BF-01,Nguyễn Tùng,Tạm lưu chờ phân luồng',
       'K03,TS-01,Khu trung chuyển TS-01,Trần Minh,Kiện hàng xuất nhanh',
-      'T03,RK-02,Kệ hàng Zone B - RK02,Lê Hữu Hoàng,Hàng đóng thùng carton',
+      'T03,80001010_Z1_R1_D4_C2_T5_H1,Rack Thường,Lê Hữu Hoàng,Hàng đóng thùng carton',
     ].join('\r\n');
 
     const blob = new Blob(['\uFEFF' + csvHeader + sampleRows], {
@@ -118,16 +120,30 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
           const driver = (driverIdx >= 0 && row[driverIdx]) ? row[driverIdx] : (row[3] || 'Trần Minh');
           const notes = (notesIdx >= 0 && row[notesIdx]) ? row[notesIdx] : (row[4] || '');
 
-          // Khớp vị trí từ danh mục Supabase nếu có
-          let matchedLoc = locations.find(
-            l =>
-              l.code.toUpperCase() === rawDestCode.toUpperCase() ||
-              l.name.toLowerCase() === rawDestName.toLowerCase() ||
-              l.name.toLowerCase().includes(rawDestName.toLowerCase())
-          );
+          // Kiểm tra xem vị trí đích có phải là mã hộc rack chi tiết hay không
+          const isSlot = isRackSlotCode(rawDestCode);
+          let finalDestCode = rawDestCode;
+          let finalDestName = rawDestName;
 
-          const finalDestCode = rawDestCode || (matchedLoc ? matchedLoc.code : 'TS-01');
-          const finalDestName = rawDestName || (matchedLoc ? matchedLoc.name : finalDestCode);
+          if (isSlot) {
+            // Giữ nguyên toạ độ hộc rack chi tiết
+            finalDestCode = rawDestCode;
+            // Tên vị trí: Tự động chuẩn hoá thành tên nhóm (Rack Thường, Rack Cắt Liều) nếu file không ghi hoặc ghi lặp lại mã
+            if (!rawDestName || rawDestName.toUpperCase() === rawDestCode.toUpperCase()) {
+              finalDestName = getRackCategoryName(rawDestCode);
+            }
+          } else {
+            // Khớp vị trí từ danh mục Supabase nếu là khu vực thông thường
+            const matchedLoc = locations.find(
+              l =>
+                l.code.toUpperCase() === rawDestCode.toUpperCase() ||
+                l.name.toLowerCase() === rawDestName.toLowerCase() ||
+                l.name.toLowerCase().includes(rawDestName.toLowerCase())
+            );
+
+            finalDestCode = rawDestCode || (matchedLoc ? matchedLoc.code : 'TS-01');
+            finalDestName = rawDestName || (matchedLoc ? matchedLoc.name : finalDestCode);
+          }
 
           // Kiểm tra tính hợp lệ của mã Pallet (chuẩn K... hoặc T...)
           let isValid = true;
@@ -149,6 +165,7 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
             notes,
             isValid,
             errorReason,
+            isRackSlot: isSlot,
           });
         }
 
@@ -387,6 +404,12 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
               <span className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
                 {validCount} hợp lệ
               </span>
+              {items.filter(i => i.isRackSlot).length > 0 && (
+                <span className="text-[11px] px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[13px]">shelves</span>
+                  {items.filter(i => i.isRackSlot).length} hộc rack
+                </span>
+              )}
               {invalidCount > 0 && (
                 <span className="text-[11px] px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-bold">
                   {invalidCount} lỗi
@@ -405,8 +428,8 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
                     : 'bg-rose-50/50 border-rose-200'
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between flex-wrap gap-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-code-md text-sm text-[#004ac6] font-bold tracking-tight">
                       {item.palletId || '(Trống)'}
                     </span>
@@ -416,6 +439,12 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
                       </span>
                       {item.destinationCode} - {item.destinationName}
                     </span>
+                    {item.isRackSlot && (
+                      <span className="px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold flex items-center gap-0.5">
+                        <span className="material-symbols-outlined text-[11px]">shelves</span>
+                        Hộc Rack
+                      </span>
+                    )}
                   </div>
 
                   {item.isValid ? (

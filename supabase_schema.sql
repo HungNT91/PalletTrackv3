@@ -41,10 +41,9 @@ CREATE TABLE IF NOT EXISTS public.transfer_cards (
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
     destination_location TEXT NOT NULL,
-    destination_code TEXT NOT NULL
-        REFERENCES public.warehouse_locations(code)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT,
+    destination_code TEXT NOT NULL,
+    -- Luu y: destination_code KHONG rang buoc FK voi warehouse_locations de cho phep luu 6.241+ ma hoc rack chi tiet
+    -- (vi du: 80001010_Z1_R1_D2_C1_T3_H1) ma khong can phinh to bang danh muc warehouse_locations.
     status TEXT NOT NULL DEFAULT 'PENDING'
         CHECK (status IN ('PENDING', 'COMPLETED')),
     driver TEXT,
@@ -58,6 +57,9 @@ CREATE TABLE IF NOT EXISTS public.transfer_cards (
         (status = 'COMPLETED' AND completed_at IS NOT NULL)
     )
 );
+
+-- Go bo rang buoc khoa ngoai cu neu database da ton tai de ho tro luu hoc rack
+ALTER TABLE public.transfer_cards DROP CONSTRAINT IF EXISTS transfer_cards_destination_code_fkey;
 
 -- =========================================================
 -- 4. Nhat ky thao tac
