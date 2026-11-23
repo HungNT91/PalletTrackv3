@@ -603,7 +603,7 @@ export const wmsApi = {
         destCode = item.destinationCode || item.destination;
         destName = item.destination && item.destination !== destCode
           ? item.destination
-          : getRackCategoryName(destCode, item.destination);
+          : 'Hộc Rack';
       } else {
         const loc =
           locations.find(

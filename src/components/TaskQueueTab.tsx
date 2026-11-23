@@ -114,16 +114,14 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
         const isSlot = isRackSlotCode(card.destinationCode, card.destinationLocation);
 
         if (selectedFilter === 'Hộc Rack') {
-          // Lọc chính xác các thẻ điều chuyển về hộc rack
+          // Lọc chính xác các thẻ điều chuyển về hộc rack chi tiết
           matchChip = isSlot;
         } else if (selectedFilter === 'Rack Thường') {
-          matchChip =
-            destLoc.includes('rack thường') ||
-            (isSlot && getRackCategoryName(card.destinationCode, card.destinationLocation) === 'Rack Thường');
+          // Chỉ lọc vị trí tổng Rack Thường (không bao gồm hộc rack)
+          matchChip = !isSlot && (destLoc.includes('rack thường') || destCode === '80001010_z1_r1_d2_c1_t2_h1');
         } else if (selectedFilter === 'Rack Cắt Liều') {
-          matchChip =
-            destLoc.includes('rack cắt liều') ||
-            (isSlot && getRackCategoryName(card.destinationCode, card.destinationLocation) === 'Rack Cắt Liều');
+          // Chỉ lọc vị trí tổng Rack Cắt Liều (không bao gồm hộc rack)
+          matchChip = !isSlot && (destLoc.includes('rack cắt liều') || destCode === '80001030_z1_r1_d1_c1_t2_h1');
         } else {
           matchChip =
             destLoc.includes(selectedFilter.toLowerCase()) ||

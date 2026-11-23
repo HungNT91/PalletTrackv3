@@ -128,9 +128,9 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
           if (isSlot) {
             // Giữ nguyên toạ độ hộc rack chi tiết
             finalDestCode = rawDestCode;
-            // Tên vị trí: Tự động chuẩn hoá thành tên nhóm (Rack Thường, Rack Cắt Liều) nếu file không ghi hoặc ghi lặp lại mã
+            // Tên vị trí: Tự động gán là "Hộc Rack" nếu file không ghi hoặc ghi lặp lại mã
             if (!rawDestName || rawDestName.toUpperCase() === rawDestCode.toUpperCase()) {
-              finalDestName = getRackCategoryName(rawDestCode, rawDestName);
+              finalDestName = 'Hộc Rack';
             }
           } else {
             // Khớp vị trí từ danh mục Supabase nếu là khu vực thông thường
