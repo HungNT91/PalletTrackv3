@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { TransferCard, WMSStats } from '../types';
+import { TransferCard, WMSStats, WarehouseLocation } from '../types';
 import { isRackSlotCode, getRackCategoryName } from '../utils/rackUtils';
 
 interface TaskQueueTabProps {
   cards: TransferCard[];
   stats: WMSStats | null;
+  locations?: WarehouseLocation[];
   onSelectCard: (card: TransferCard) => void;
   onRefresh: () => void;
 }
@@ -12,6 +13,7 @@ interface TaskQueueTabProps {
 export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
   cards,
   stats,
+  locations = [],
   onSelectCard,
   onRefresh,
 }) => {
@@ -111,16 +113,16 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
       if (!matchChip) {
         const destLoc = (card.destinationLocation || '').toLowerCase();
         const destCode = (card.destinationCode || '').toLowerCase();
-        const isSlot = isRackSlotCode(card.destinationCode, card.destinationLocation);
+        const isSlot = isRackSlotCode(card.destinationCode, card.destinationLocation, locations);
 
         if (selectedFilter === 'Hộc Rack') {
-          // Lọc chính xác các thẻ điều chuyển về hộc rack chi tiết
+          // Lọc chính xác các thẻ có vị trí đích KHÔNG thuộc warehouse_locations
           matchChip = isSlot;
         } else if (selectedFilter === 'Rack Thường') {
-          // Chỉ lọc vị trí tổng Rack Thường (không bao gồm hộc rack)
+          // Chỉ lọc vị trí tổng Rack Thường có trong warehouse_locations
           matchChip = !isSlot && (destLoc.includes('rack thường') || destCode === '80001010_z1_r1_d2_c1_t2_h1');
         } else if (selectedFilter === 'Rack Cắt Liều') {
-          // Chỉ lọc vị trí tổng Rack Cắt Liều (không bao gồm hộc rack)
+          // Chỉ lọc vị trí tổng Rack Cắt Liều có trong warehouse_locations
           matchChip = !isSlot && (destLoc.includes('rack cắt liều') || destCode === '80001030_z1_r1_d1_c1_t2_h1');
         } else {
           matchChip =
@@ -131,7 +133,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
 
       return matchSearch && matchChip;
     });
-  }, [currentList, searchQuery, selectedFilter]);
+  }, [currentList, searchQuery, selectedFilter, locations]);
 
   const getBorderColor = (card: TransferCard) => {
     if (card.priority === 'urgent' || (card.statusLabel && card.statusLabel.includes('Ưu tiên'))) return 'bg-amber-500';
@@ -451,7 +453,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                     <div className="min-w-0">
                       <div className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider flex items-center gap-1.5">
                         <span>Vị trí đích</span>
-                        {isRackSlotCode(card.destinationCode, card.destinationLocation) && (
+                        {isRackSlotCode(card.destinationCode, card.destinationLocation, locations) && (
                           <span className="px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 text-[9px] font-bold">
                             Hộc Rack
                           </span>
@@ -459,7 +461,7 @@ export const TaskQueueTab: React.FC<TaskQueueTabProps> = ({
                       </div>
                       <div className="text-xs font-bold text-slate-800 truncate" title={card.destinationCode ? `${card.destinationLocation} (${card.destinationCode})` : card.destinationLocation}>
                         <span>{card.destinationLocation}</span>
-                        {isRackSlotCode(card.destinationCode, card.destinationLocation) && (
+                        {isRackSlotCode(card.destinationCode, card.destinationLocation, locations) && (
                           <span className="font-code-md text-[11px] font-semibold text-indigo-700 ml-1.5">
                             • {card.destinationCode}
                           </span>

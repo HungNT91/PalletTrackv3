@@ -120,8 +120,8 @@ export const BulkImportTab: React.FC<BulkImportTabProps> = ({
           const driver = (driverIdx >= 0 && row[driverIdx]) ? row[driverIdx] : (row[3] || 'Trần Minh');
           const notes = (notesIdx >= 0 && row[notesIdx]) ? row[notesIdx] : (row[4] || '');
 
-          // Kiểm tra xem vị trí đích có phải là mã hộc rack chi tiết hay không
-          const isSlot = isRackSlotCode(rawDestCode, rawDestName);
+          // Kiểm tra xem vị trí đích có thuộc bảng warehouse_locations hay không (nếu không thuộc => đưa vào hộc rack)
+          const isSlot = isRackSlotCode(rawDestCode, rawDestName, locations);
           let finalDestCode = rawDestCode;
           let finalDestName = rawDestName;
 

@@ -337,6 +337,7 @@ export default function App() {
           <TaskQueueTab
             cards={cards}
             stats={stats}
+            locations={locations}
             onSelectCard={handleOpenReconcile}
             onRefresh={fetchData}
           />

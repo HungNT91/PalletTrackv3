@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
                   PalletTrack
                 </span>
                 <span className="px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded bg-blue-50 border border-blue-200/80 text-[#004ac6] font-code-md text-[9px] sm:text-[10px] uppercase font-bold tracking-wider">
-                  V3.2
+                  V3.4
                 </span>
               </div>
               <div className="flex items-center gap-1 sm:gap-1.5">
