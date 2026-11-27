@@ -253,7 +253,9 @@ export const wmsApi = {
           .order('code', { ascending: true });
 
         if (!error && data && data.length > 0) {
-          return data.map(item => ({
+          // Chỉ lấy danh mục vị trí tổng cố định, loại trừ hoàn toàn các toạ độ hộc rack
+          const masterLocs = data.filter(item => !isRackSlotCode(item.code, item.name));
+          return masterLocs.map(item => ({
             code: item.code,
             name: item.name,
             id: item.code,

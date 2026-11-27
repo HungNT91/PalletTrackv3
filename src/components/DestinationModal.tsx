@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Pallet, WarehouseLocation } from '../types';
+import { isRackSlotCode } from '../utils/rackUtils';
 
 interface DestinationModalProps {
   pallet: Pallet | null;
@@ -20,8 +21,21 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
   currentDriver = 'Trần Minh',
   operatorCode,
 }) => {
-  const [selectedLocId, setSelectedLocId] = useState<string>('TS-01');
+  // Lọc chỉ giữ lại các vị trí kho tổng cố định, loại trừ hoàn toàn các toạ độ hộc rack
+  const filteredLocations = useMemo(() => {
+    return locations.filter(loc => !isRackSlotCode(loc.code, loc.name));
+  }, [locations]);
+
+  const [selectedLocId, setSelectedLocId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (filteredLocations.length > 0) {
+      if (!selectedLocId || !filteredLocations.some(l => l.code === selectedLocId || l.id === selectedLocId)) {
+        setSelectedLocId(filteredLocations[0].code || filteredLocations[0].id || '');
+      }
+    }
+  }, [filteredLocations, selectedLocId]);
 
   // Default to active shift employee, fixed and not selectable
   const operatingEmployee = currentDriver || 'Trần Minh';
@@ -29,7 +43,7 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
   if (!isOpen || !pallet) return null;
 
   const handleSave = async () => {
-    const loc = locations.find(l => l.code === selectedLocId || l.id === selectedLocId) || locations[0];
+    const loc = filteredLocations.find(l => l.code === selectedLocId || l.id === selectedLocId) || filteredLocations[0];
     if (!loc) return;
 
     try {
@@ -94,7 +108,7 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
 
         {/* Locations List */}
         <div className="p-4 overflow-y-auto flex flex-col gap-2.5 max-h-[46vh]">
-          {locations.map(loc => {
+          {filteredLocations.map(loc => {
             const locKey = loc.code || loc.id || '';
             const isSelected = selectedLocId === locKey;
             return (
